@@ -1,5 +1,7 @@
 package com.softport.meenvspringboot.controllers;
 
+import com.softport.meenvspringboot.exceptions.AppException;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.softport.meenvspringboot.models.Groups;
@@ -19,8 +21,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import javax.validation.Valid;
+
 @RestController
 @RequiredArgsConstructor
+@Validated
 public class GroupController {
 
     private final GroupRepository groupRepository;
@@ -49,9 +54,14 @@ public class GroupController {
     }
 
     @GetMapping(value = "groups/{groupId}")
-    public ResponseEntity<?> updateGroup(@PathVariable Long groupId) {
+    public ResponseEntity<?> updateGroup( @PathVariable Long groupId) {
+        System.out.println(groupId);
+        Optional<Groups> group = groupRepository.findById(groupId);
+        if (group.isEmpty()) {
+            throw new AppException("Group not found",HttpStatus.NOT_FOUND);
 
-        return new ResponseEntity<>(groupRepository.findById(groupId), HttpStatus.CREATED);
+        }
+        return new ResponseEntity<>(group, HttpStatus.CREATED);
     }
 
     @DeleteMapping(value = "groups/{groupId}")
