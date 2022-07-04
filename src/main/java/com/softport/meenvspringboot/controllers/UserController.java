@@ -32,14 +32,7 @@ public class UserController {
 
     @PostMapping("/users")
     public ResponseEntity<User> signUp(@RequestBody @Valid User user) {
-        // try {
         user = userRepository.save(user);
-        /*
-         * } catch (Exception e) {
-         * log.error(e.getMessage());
-         * log.error(e.getClass().getName());
-         * }
-         */
         return new ResponseEntity<>(user, HttpStatus.CREATED);
 
     }
