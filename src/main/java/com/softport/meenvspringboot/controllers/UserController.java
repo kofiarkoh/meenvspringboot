@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import com.softport.meenvspringboot.exceptions.AppException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -32,7 +33,11 @@ public class UserController {
 
     @PostMapping("/users")
     public ResponseEntity<User> signUp(@RequestBody @Valid User user) {
-        user = userRepository.save(user);
+        if ( userRepository.existsByPhoneNumber(user.getPhoneNumber())) {
+            throw new AppException("Phone Number taken by another user",HttpStatus.BAD_REQUEST);
+        }
+
+        //user = userRepository.save(user);
         return new ResponseEntity<>(user, HttpStatus.CREATED);
 
     }
