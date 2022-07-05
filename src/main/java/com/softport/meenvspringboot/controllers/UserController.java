@@ -37,7 +37,7 @@ public class UserController {
             throw new AppException("Phone Number taken by another user",HttpStatus.BAD_REQUEST);
         }
 
-        //user = userRepository.save(user);
+        user = userRepository.save(user);
         return new ResponseEntity<>(user, HttpStatus.CREATED);
 
     }
@@ -48,7 +48,7 @@ public class UserController {
     }
 
     @PutMapping("users")
-    public ResponseEntity<User> updateUser(@RequestBody User user) {
+    public ResponseEntity<User> updateUser(@Valid @RequestBody User user) {
         user = userRepository.save(user);
         return new ResponseEntity<>(user, HttpStatus.CREATED);
     }

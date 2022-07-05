@@ -14,11 +14,13 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Length;
 
 @Entity
 @Data
@@ -33,15 +35,16 @@ public class User {
     private long id;
 
     @Column
+    @Length(min = 3, message = "First name must be at least 3 characters")
     private String firstName;
 
     @Column
+    @Length(min = 3, message = "Last name must be at least 3 characters")
     private String lastName;
 
     @Column
     @NotNull
-    @Size(min = 10, max = 10)
-    // @UniqueConstraint
+    @Pattern(regexp = "\\d{10}", message = "Phone number must be 10 digits long")
     private String phoneNumber;
 
     @Column
