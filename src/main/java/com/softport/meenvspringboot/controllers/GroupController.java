@@ -48,7 +48,7 @@ public class GroupController {
     }
 
     @PostMapping(value = "groups/contacts")
-    public ResponseEntity<Groups> updateGroupContacts(@RequestBody Groups group) {
+    public ResponseEntity<Groups> updateGroupContacts(@Valid @RequestBody Groups group) {
         groupRepository.save(group);
         return new ResponseEntity<>(group, HttpStatus.CREATED);
     }

@@ -41,18 +41,18 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
             HttpHeaders headers, HttpStatus status, WebRequest request) {
-        System.out.println("not valid exception");
-        return new ResponseEntity<>(ex.getMessage(), null, HttpStatus.BAD_REQUEST);
-        // return super.handleMethodArgumentNotValid(ex, headers, status, request);
+        //respond with only first argument error.
+
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(ex.getBindingResult().getFieldError().getField());
+        stringBuilder.append(": ");
+        stringBuilder.append(ex.getBindingResult().getFieldError().getDefaultMessage());
+        return new ResponseEntity<>( new ErrorDTO(stringBuilder.toString(), HttpStatus.BAD_REQUEST.value(), new Date().toGMTString()), null, HttpStatus.BAD_REQUEST);
     }
 
     @Override
     protected ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         String messages  =  "Failed to convert value of "+ ex.getValue()  +" to type "+  ex.getRequiredType().getSimpleName() ;
-        ErrorDTO errorDTO = new ErrorDTO();
-        errorDTO.setMessage(messages);
-        errorDTO.setStatus(HttpStatus.BAD_REQUEST.value());
-        errorDTO.setDate(new Date().toGMTString());
-        return  new ResponseEntity<>(errorDTO,null,HttpStatus.BAD_REQUEST);
+        return  new ResponseEntity<>(new ErrorDTO(messages, HttpStatus.BAD_REQUEST.value(), new Date().toGMTString()),null,HttpStatus.BAD_REQUEST);
     }
 }

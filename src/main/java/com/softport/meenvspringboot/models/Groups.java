@@ -12,10 +12,12 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.Valid;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Length;
 
 @Entity
 @Data
@@ -30,13 +32,15 @@ public class Groups {
     private long id;
 
     @Column(name = "name")
+    @Length(min = 3, message = "Group name must be at least 3 characters")
     private String name;
 
     /* @ManyToOne(cascade = CascadeType.ALL) */
     @Column(name = "user_id")
     private long userId;
 
+
     @OneToMany(cascade = CascadeType.ALL)
-    private Collection<Contacts> contacts;
+    private Collection<@Valid Contacts> contacts;
 
 }
