@@ -7,4 +7,6 @@ import com.softport.meenvspringboot.models.User;
 public interface UserRepository extends CrudRepository<User, Long> {
 
     boolean existsByPhoneNumber(String phoneNumber);
+
+    User findByPhoneNumber(String phoneNumber);
 }
