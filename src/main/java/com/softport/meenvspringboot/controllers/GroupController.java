@@ -36,24 +36,29 @@ public class GroupController {
     private final UserRepository userRepository;
 
     @PostMapping(value = "/groups")
-    public ResponseEntity<?> creatUserGroup(@RequestBody Groups group) {
+    public ResponseEntity<?> creatUserGroup(@Valid @RequestBody Groups group) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getDetails();
         group.setUserId(user.getId());
         group = groupRepository.save(group);
-        // gdgdf ffsdsd dsdsd
-        // User user = userRepository.findById(group.getId())
-
         return new ResponseEntity<>(group, HttpStatus.CREATED);
     }
 
     @PostMapping(value = "groups/contacts")
     public ResponseEntity<Groups> updateGroupContacts(@Valid @RequestBody Groups group) {
+        /*
+        * add user id to group to cater for instances when user_id isn't part
+        * of request body.
+        * */
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getDetails();
+        group.setUserId(user.getId());
         groupRepository.save(group);
         return new ResponseEntity<>(group, HttpStatus.CREATED);
     }
 
+/*
     @GetMapping(value = "groups/{groupId}")
     public ResponseEntity<?> updateGroup( @PathVariable Long groupId) {
         System.out.println(groupId);
@@ -64,6 +69,7 @@ public class GroupController {
         }
         return new ResponseEntity<>(group, HttpStatus.CREATED);
     }
+*/
 
     @DeleteMapping(value = "groups/{groupId}")
     public ResponseEntity<?> deleteGroup(@PathVariable Long groupId) {
