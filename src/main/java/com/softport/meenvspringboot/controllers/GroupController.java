@@ -42,7 +42,7 @@ public class GroupController {
         User user = (User) authentication.getDetails();
         group.setUserId(user.getId());
         group = groupRepository.save(group);
-
+        // gdgdf ffsdsd dsdsd
         // User user = userRepository.findById(group.getId())
 
         return new ResponseEntity<>(group, HttpStatus.CREATED);
