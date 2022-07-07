@@ -1,6 +1,9 @@
 package com.softport.meenvspringboot.controllers;
 
 import com.softport.meenvspringboot.exceptions.AppException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,20 +29,18 @@ import javax.validation.Valid;
 @RestController
 @RequiredArgsConstructor
 @Validated
+@Slf4j
 public class GroupController {
 
     private final GroupRepository groupRepository;
     private final UserRepository userRepository;
 
     @PostMapping(value = "/groups")
-    public ResponseEntity<Groups> creatUserGroup(@RequestBody Groups group) {
+    public ResponseEntity<?> creatUserGroup(@RequestBody Groups group) {
 
-        /*
-         * Optional<User> user = userRepository.findById(1L);
-         * if (user.isPresent()) {
-         * group.setUser(user.get());
-         * }
-         */
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getDetails();
+        group.setUserId(user.getId());
         group = groupRepository.save(group);
 
         // User user = userRepository.findById(group.getId())

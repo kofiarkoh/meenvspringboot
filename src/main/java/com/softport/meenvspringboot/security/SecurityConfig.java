@@ -2,6 +2,7 @@ package com.softport.meenvspringboot.security;
 
 import com.softport.meenvspringboot.filters.CustomAuthenticationFilter;
 import com.softport.meenvspringboot.filters.CustomAuthorizationFilter;
+import com.softport.meenvspringboot.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,6 +25,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final UserDetailsService userDetailsService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final UserRepository userRepository;
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable();
@@ -34,7 +37,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests().anyRequest().authenticated();
 
         http.addFilter(new CustomAuthenticationFilter(this.authenticationManagerBean())) ;
-        http.addFilterBefore(new CustomAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(new CustomAuthorizationFilter( userRepository ), UsernamePasswordAuthenticationFilter.class);
     }
 
     @Bean
