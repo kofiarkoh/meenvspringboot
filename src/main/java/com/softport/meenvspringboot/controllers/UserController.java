@@ -6,6 +6,7 @@ import java.util.List;
 import javax.validation.Valid;
 
 import com.softport.meenvspringboot.exceptions.AppException;
+import com.softport.meenvspringboot.services.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -30,6 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 public class UserController {
 
     private final UserRepository userRepository;
+    private final UserService userService;
 
     @PostMapping("/users")
     public ResponseEntity<User> signUp(@RequestBody @Valid User user) {
@@ -37,7 +39,7 @@ public class UserController {
             throw new AppException("Phone Number taken by another user",HttpStatus.BAD_REQUEST);
         }
 
-        user = userRepository.save(user);
+        user = userService.saveUser(user);
         return new ResponseEntity<>(user, HttpStatus.CREATED);
 
     }
