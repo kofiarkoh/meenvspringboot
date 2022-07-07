@@ -46,7 +46,7 @@ public class GroupController {
     }
 
     @PostMapping(value = "groups/contacts")
-    public ResponseEntity<Groups> updateGroupContacts(@Valid @RequestBody Groups group) {
+    public ResponseEntity<Groups> updateGroup(@Valid @RequestBody Groups group) {
         /*
         * add user id to group to cater for instances when user_id isn't part
         * of request body.
@@ -58,18 +58,6 @@ public class GroupController {
         return new ResponseEntity<>(group, HttpStatus.CREATED);
     }
 
-/*
-    @GetMapping(value = "groups/{groupId}")
-    public ResponseEntity<?> updateGroup( @PathVariable Long groupId) {
-        System.out.println(groupId);
-        Optional<Groups> group = groupRepository.findById(groupId);
-        if (group.isEmpty()) {
-            throw new AppException("Group not found",HttpStatus.NOT_FOUND);
-
-        }
-        return new ResponseEntity<>(group, HttpStatus.CREATED);
-    }
-*/
 
     @DeleteMapping(value = "groups/{groupId}")
     public ResponseEntity<?> deleteGroup(@PathVariable Long groupId) {
