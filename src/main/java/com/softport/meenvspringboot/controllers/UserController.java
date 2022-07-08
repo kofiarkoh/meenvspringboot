@@ -10,6 +10,7 @@ import com.softport.meenvspringboot.exceptions.AppException;
 import com.softport.meenvspringboot.services.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -53,9 +54,18 @@ public class UserController {
     }
 
     @PutMapping("users")
-    public ResponseEntity<User> updateUser(@Valid @RequestBody User user) {
-        user = userRepository.save(user);
-        return new ResponseEntity<>(user, HttpStatus.CREATED);
+    public ResponseEntity<User> updateUser(@Valid @RequestBody User newUserInfo) {
+        /*
+        * merge existing info with incoming user object.
+        * set incoming object's password with existing password
+        * set incoming object's smsSent and smsBalance with existing ones to prevent
+        * the possibility of the user supplying new balance to cheat the system.
+        * */
+        User loggedInUserData  = (User) SecurityContextHolder.getContext().getAuthentication().getDetails();
+        User existingUserInfo  = userRepository.findById(loggedInUserData.getId())
+                .orElseThrow(()-> new AppException("User not found",HttpStatus.BAD_REQUEST));
+        newUserInfo.setPassword(existingUserInfo.getPassword());
+        return new ResponseEntity<>( userRepository.save(newUserInfo), HttpStatus.CREATED);
     }
 
 }
