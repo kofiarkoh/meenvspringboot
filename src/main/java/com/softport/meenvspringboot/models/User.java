@@ -53,6 +53,13 @@ public class User {
     @JsonIgnore
     private String password;
 
+    @Column
+
+    private long smsBalance = 0;
+
+    @Column
+    private  long smsSent = 0;
+
     /*
      * @OneToMany(cascade = CascadeType.ALL)
      * // @JoinColumn(name = "user_id")
