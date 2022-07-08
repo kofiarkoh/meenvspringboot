@@ -2,6 +2,7 @@ package com.softport.meenvspringboot.controllers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import javax.validation.Valid;
 
@@ -46,7 +47,9 @@ public class UserController {
 
     @GetMapping("users/{userID}")
     public ResponseEntity<?> getUser(@PathVariable Long userID) {
-        return new ResponseEntity<>(userRepository.findById(userID), HttpStatus.CREATED);
+        Optional<User> user = userRepository.findById(userID);
+
+        return new ResponseEntity<>(user, HttpStatus.CREATED);
     }
 
     @PutMapping("users")
