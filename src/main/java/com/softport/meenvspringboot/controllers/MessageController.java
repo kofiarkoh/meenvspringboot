@@ -3,6 +3,8 @@ package com.softport.meenvspringboot.controllers;
 import com.softport.meenvspringboot.dto.SendMessageDTO;
 import com.softport.meenvspringboot.exceptions.AppException;
 import com.softport.meenvspringboot.models.Message;
+import com.softport.meenvspringboot.repositories.MessageRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,8 +12,10 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController @Slf4j
 @RequestMapping(path= "/messages")
+@RequiredArgsConstructor
 public class MessageController {
 
+    private final MessageRepository messageRepository;
     @GetMapping
     public ResponseEntity<?> getUserMessages(){
         return new ResponseEntity<>("Hello", HttpStatus.OK);
@@ -33,8 +37,20 @@ public class MessageController {
                 throw new AppException("Recipient phone number must be 10 digits.",HttpStatus.BAD_REQUEST);
             }
 
+            // save individual message to database.
+            sendMessageDTO.getRecipients().forEach(recipient ->{
+                Message message = new Message();
+                message.setMessage(sendMessageDTO.getMessage());
+                message.setRecipient(recipient.getPhoneNumber());
+                message.setToGroup(false);
+                message.setStatus("pending");
+                message.setSenderId(sendMessageDTO.getSenderId());
+
+                messageRepository.save(message);
+            });
+
         }
 
-        return new ResponseEntity<>(sendMessageDTO, HttpStatus.OK);
+        return new ResponseEntity<>( "Message recieved for delivery.", HttpStatus.OK);
     }
 }
