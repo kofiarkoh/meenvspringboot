@@ -2,7 +2,9 @@ package com.softport.meenvspringboot.controllers;
 
 import com.softport.meenvspringboot.dto.SendMessageDTO;
 import com.softport.meenvspringboot.exceptions.AppException;
+import com.softport.meenvspringboot.models.Groups;
 import com.softport.meenvspringboot.models.Message;
+import com.softport.meenvspringboot.repositories.GroupRepository;
 import com.softport.meenvspringboot.repositories.MessageRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,6 +22,7 @@ import java.util.stream.Collectors;
 public class MessageController {
 
     private final MessageRepository messageRepository;
+    private final GroupRepository groupRepository;
     @GetMapping
     public ResponseEntity<?> getUserMessages(){
         return new ResponseEntity<>("Hello", HttpStatus.OK);
@@ -27,11 +31,23 @@ public class MessageController {
     @PostMapping
     public ResponseEntity<?> storeMessage(@RequestBody SendMessageDTO sendMessageDTO){
 
-        // validate phone numbers if messages is not sent to a group;
-        if (sendMessageDTO.isToGroup()){
 
+        if (sendMessageDTO.isToGroup()){
+            Groups group = groupRepository.findById(sendMessageDTO.getGroupId())
+                    .orElseThrow(() ->new AppException("Group not found",HttpStatus.NOT_FOUND));
+            List<Message> messageList = group.getContacts().stream().map(recipient->{
+                Message message = new Message();
+                message.setMessage(sendMessageDTO.getMessage());
+                message.setRecipient(recipient.getPhoneNumber());
+                message.setToGroup(false);
+                message.setStatus("pending");
+                message.setSenderId(sendMessageDTO.getSenderId());
+                return  message;
+            }).collect(Collectors.toList());
+            messageRepository.saveAll(messageList);
         }else {
             // handle one-time recipients;
+            // validate phone numbers if messages is not sent to a group;
             if((sendMessageDTO.getRecipients() == null) || sendMessageDTO.getRecipients().isEmpty()   ){
                 throw new AppException("Message recipients not found ",HttpStatus.BAD_REQUEST);
             }

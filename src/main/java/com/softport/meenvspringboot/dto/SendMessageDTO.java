@@ -9,4 +9,5 @@ import java.util.Collection;
 @Data
 public class SendMessageDTO extends Message {
     private Collection<Contacts> recipients;
+    private long groupId;
 }
