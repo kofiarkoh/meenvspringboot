@@ -27,6 +27,7 @@ public class Message {
 
     private String status;
 
+    private int recipientCount;
 
 
 }

@@ -51,6 +51,7 @@ public class MessageController {
                 message.setStatus("pending");
                 message.setSenderId(sendMessageDTO.getSenderId());
                 message.setUserId(user.getId());
+                message.setRecipientCount(group.getContacts().size());
                 return  message;
             }).collect(Collectors.toList());
             messageRepository.saveAll(messageList);
@@ -75,6 +76,7 @@ public class MessageController {
                 message.setStatus("pending");
                 message.setSenderId(sendMessageDTO.getSenderId());
                 message.setUserId(user.getId());
+                message.setRecipientCount(sendMessageDTO.getRecipients().size());
                 return  message;
             }).collect(Collectors.toList());
             messageRepository.saveAll(messageList);
