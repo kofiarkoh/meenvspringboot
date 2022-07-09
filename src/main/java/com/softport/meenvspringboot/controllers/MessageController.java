@@ -8,6 +8,7 @@ import com.softport.meenvspringboot.models.User;
 import com.softport.meenvspringboot.repositories.GroupRepository;
 import com.softport.meenvspringboot.repositories.MessageRepository;
 import com.softport.meenvspringboot.services.AuthenticationService;
+import com.softport.meenvspringboot.services.MessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -25,9 +26,13 @@ public class MessageController {
 
     private final MessageRepository messageRepository;
     private final GroupRepository groupRepository;
+
+    private final MessageService messageService;
     @GetMapping
     public ResponseEntity<?> getUserMessages(){
-        return new ResponseEntity<>("Hello", HttpStatus.OK);
+        User user = AuthenticationService.getAuthenticatedUser();
+
+        return new ResponseEntity<>( messageService.getMessageByUserId(user.getId()), HttpStatus.OK);
     }
 
     @PostMapping
@@ -42,7 +47,7 @@ public class MessageController {
                 Message message = new Message();
                 message.setMessage(sendMessageDTO.getMessage());
                 message.setRecipient(recipient.getPhoneNumber());
-                message.setToGroup(false);
+                message.setToGroup(true);
                 message.setStatus("pending");
                 message.setSenderId(sendMessageDTO.getSenderId());
                 message.setUserId(user.getId());
