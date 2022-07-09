@@ -10,6 +10,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @RestController @Slf4j
 @RequestMapping(path= "/messages")
 @RequiredArgsConstructor
@@ -37,17 +40,19 @@ public class MessageController {
                 throw new AppException("Recipient phone number must be 10 digits.",HttpStatus.BAD_REQUEST);
             }
 
+
             // save individual message to database.
-            sendMessageDTO.getRecipients().forEach(recipient ->{
+            List<Message> messageList = sendMessageDTO.getRecipients().stream().map(recipient->{
                 Message message = new Message();
                 message.setMessage(sendMessageDTO.getMessage());
                 message.setRecipient(recipient.getPhoneNumber());
                 message.setToGroup(false);
                 message.setStatus("pending");
                 message.setSenderId(sendMessageDTO.getSenderId());
+                return  message;
+            }).collect(Collectors.toList());
+            messageRepository.saveAll(messageList);
 
-                messageRepository.save(message);
-            });
 
         }
 
