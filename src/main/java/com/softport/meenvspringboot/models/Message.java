@@ -29,5 +29,7 @@ public class Message {
 
     private int recipientCount;
 
+    private String messageId;
+
 
 }
