@@ -20,8 +20,9 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 
-@RestController @Slf4j
-@RequestMapping(path= "/messages")
+@RestController
+@Slf4j
+@RequestMapping(path = "/messages")
 @RequiredArgsConstructor
 public class MessageController {
 
@@ -29,36 +30,40 @@ public class MessageController {
     private final GroupRepository groupRepository;
 
     private final MessageService messageService;
+
     @GetMapping
-    public ResponseEntity<?> getUserMessages(){
+    public ResponseEntity<?> getUserMessages() {
         User user = AuthenticationService.getAuthenticatedUser();
 
-        return new ResponseEntity<>( messageService.getMessageByUserId(user.getId()), HttpStatus.OK);
+        return new ResponseEntity<>(messageService.getMessageByUserId(user.getId()), HttpStatus.OK);
     }
 
     @PostMapping
-    public ResponseEntity<?> storeMessage(@RequestBody SendMessageDTO sendMessageDTO){
+    public ResponseEntity<?> storeMessage(@RequestBody SendMessageDTO sendMessageDTO) {
 
         User user = AuthenticationService.getAuthenticatedUser();
-        if (sendMessageDTO.isToGroup()){
-            Groups group = groupRepository.findById(sendMessageDTO.getGroupId())
-                    .orElseThrow(() ->new AppException("Group not found",HttpStatus.NOT_FOUND));
-            this.messageService.saveMessage(user.getId(),group.getContacts(),sendMessageDTO);
-        }else {
+        if (sendMessageDTO.isToGroup()) {
+            Groups group = groupRepository.findById(sendMessageDTO.getGroupId()).orElseThrow(() -> new AppException("Group not found", HttpStatus.NOT_FOUND));
+
+            this.messageService.saveMessage(user.getId(), group.getContacts(), sendMessageDTO);
+
+        } else {
+
             // handle one-time recipients;
             // validate phone numbers if messages is not sent to a group;
-            if((sendMessageDTO.getRecipients() == null) || sendMessageDTO.getRecipients().isEmpty()   ){
-                throw new AppException("Message recipients not found ",HttpStatus.BAD_REQUEST);
+            if ((sendMessageDTO.getRecipients() == null) || sendMessageDTO.getRecipients().isEmpty()) {
+                throw new AppException("Message recipients not found ", HttpStatus.BAD_REQUEST);
             }
+
             // recipients is guaranteed not to be empty so check for 10 digit phone number
-            if (! sendMessageDTO.getRecipients().stream().allMatch(r-> r.getPhoneNumber().length() == 10) ){
-                throw new AppException("Recipient phone number must be 10 digits.",HttpStatus.BAD_REQUEST);
+            if (!sendMessageDTO.getRecipients().stream().allMatch(r -> r.getPhoneNumber().length() == 10)) {
+                throw new AppException("Recipient phone number must be 10 digits.", HttpStatus.BAD_REQUEST);
             }
 
             // save individual message to database.
-            this.messageService.saveMessage(user.getId(),sendMessageDTO.getRecipients(),sendMessageDTO);
+            this.messageService.saveMessage(user.getId(), sendMessageDTO.getRecipients(), sendMessageDTO);
         }
 
-        return new ResponseEntity<>( "Message recieved for delivery.", HttpStatus.OK);
+        return new ResponseEntity<>("Message recieved for delivery.", HttpStatus.OK);
     }
 }
