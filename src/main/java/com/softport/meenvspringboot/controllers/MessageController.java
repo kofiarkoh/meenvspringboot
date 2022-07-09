@@ -4,8 +4,10 @@ import com.softport.meenvspringboot.dto.SendMessageDTO;
 import com.softport.meenvspringboot.exceptions.AppException;
 import com.softport.meenvspringboot.models.Groups;
 import com.softport.meenvspringboot.models.Message;
+import com.softport.meenvspringboot.models.User;
 import com.softport.meenvspringboot.repositories.GroupRepository;
 import com.softport.meenvspringboot.repositories.MessageRepository;
+import com.softport.meenvspringboot.services.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -31,6 +33,7 @@ public class MessageController {
     @PostMapping
     public ResponseEntity<?> storeMessage(@RequestBody SendMessageDTO sendMessageDTO){
 
+        User user = AuthenticationService.getAuthenticatedUser();
 
         if (sendMessageDTO.isToGroup()){
             Groups group = groupRepository.findById(sendMessageDTO.getGroupId())
@@ -42,6 +45,7 @@ public class MessageController {
                 message.setToGroup(false);
                 message.setStatus("pending");
                 message.setSenderId(sendMessageDTO.getSenderId());
+                message.setUserId(user.getId());
                 return  message;
             }).collect(Collectors.toList());
             messageRepository.saveAll(messageList);
@@ -65,6 +69,7 @@ public class MessageController {
                 message.setToGroup(false);
                 message.setStatus("pending");
                 message.setSenderId(sendMessageDTO.getSenderId());
+                message.setUserId(user.getId());
                 return  message;
             }).collect(Collectors.toList());
             messageRepository.saveAll(messageList);
