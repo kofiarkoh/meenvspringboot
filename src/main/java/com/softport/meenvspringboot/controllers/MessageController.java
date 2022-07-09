@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 @RestController @Slf4j
@@ -39,22 +40,10 @@ public class MessageController {
     public ResponseEntity<?> storeMessage(@RequestBody SendMessageDTO sendMessageDTO){
 
         User user = AuthenticationService.getAuthenticatedUser();
-
         if (sendMessageDTO.isToGroup()){
             Groups group = groupRepository.findById(sendMessageDTO.getGroupId())
                     .orElseThrow(() ->new AppException("Group not found",HttpStatus.NOT_FOUND));
-            List<Message> messageList = group.getContacts().stream().map(recipient->{
-                Message message = new Message();
-                message.setMessage(sendMessageDTO.getMessage());
-                message.setRecipient(recipient.getPhoneNumber());
-                message.setToGroup(true);
-                message.setStatus("pending");
-                message.setSenderId(sendMessageDTO.getSenderId());
-                message.setUserId(user.getId());
-                message.setRecipientCount(group.getContacts().size());
-                return  message;
-            }).collect(Collectors.toList());
-            messageRepository.saveAll(messageList);
+            this.messageService.saveMessage(user.getId(),group.getContacts(),sendMessageDTO);
         }else {
             // handle one-time recipients;
             // validate phone numbers if messages is not sent to a group;
@@ -66,22 +55,8 @@ public class MessageController {
                 throw new AppException("Recipient phone number must be 10 digits.",HttpStatus.BAD_REQUEST);
             }
 
-
             // save individual message to database.
-            List<Message> messageList = sendMessageDTO.getRecipients().stream().map(recipient->{
-                Message message = new Message();
-                message.setMessage(sendMessageDTO.getMessage());
-                message.setRecipient(recipient.getPhoneNumber());
-                message.setToGroup(false);
-                message.setStatus("pending");
-                message.setSenderId(sendMessageDTO.getSenderId());
-                message.setUserId(user.getId());
-                message.setRecipientCount(sendMessageDTO.getRecipients().size());
-                return  message;
-            }).collect(Collectors.toList());
-            messageRepository.saveAll(messageList);
-
-
+            this.messageService.saveMessage(user.getId(),sendMessageDTO.getRecipients(),sendMessageDTO);
         }
 
         return new ResponseEntity<>( "Message recieved for delivery.", HttpStatus.OK);
