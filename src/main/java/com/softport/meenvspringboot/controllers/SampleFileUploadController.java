@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -36,14 +37,17 @@ public class SampleFileUploadController {
         return new ResponseEntity<>("", HttpStatus.OK);
     }
     @GetMapping
-    public ResponseEntity<?> getAllFileUrl(){
+    public ResponseEntity<?> getAllFileUrl(HttpServletResponse response){
         List<String> urls = new ArrayList<>();
         Path basePath = Paths.get(System.getProperty("user.home")+ "/Desktop/vmshare");
         File folder = basePath.toFile();
         File[] listOfFiles = folder.listFiles();
         for (File file : listOfFiles) {
             if (file.isFile()) {
-               urls.add(file.getName());
+                if (!file.getName().equals(".DS_Store")){
+                    urls.add(file.getName());
+                }
+
             } else if (file.isDirectory()) {
                 System.out.println("Directory " + file.getName());
             }
