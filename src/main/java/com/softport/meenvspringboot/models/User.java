@@ -54,7 +54,6 @@ public class User {
     private String password;
 
     @Column
-
     private long smsBalance = 0;
 
     @Column
