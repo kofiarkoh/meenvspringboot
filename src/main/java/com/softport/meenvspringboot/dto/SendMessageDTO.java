@@ -1,7 +1,7 @@
 package com.softport.meenvspringboot.dto;
 
-import com.softport.meenvspringboot.models.Contacts;
-import com.softport.meenvspringboot.models.Message;
+import com.softport.meenvspringboot.group.Contacts;
+import com.softport.meenvspringboot.messages.Message;
 import lombok.Data;
 
 import java.util.Collection;

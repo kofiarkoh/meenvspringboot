@@ -1,7 +1,6 @@
 package com.softport.meenvspringboot.repositories;
 
-import com.softport.meenvspringboot.models.Message;
-import org.springframework.data.jpa.repository.JpaRepository;
+import com.softport.meenvspringboot.messages.Message;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 

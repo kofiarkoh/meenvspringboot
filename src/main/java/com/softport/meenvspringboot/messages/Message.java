@@ -1,4 +1,4 @@
-package com.softport.meenvspringboot.models;
+package com.softport.meenvspringboot.messages;
 
 import lombok.Data;
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package com.softport.meenvspringboot.models;
+package com.softport.meenvspringboot.user;
 
 import java.util.Collection;
 import java.util.List;

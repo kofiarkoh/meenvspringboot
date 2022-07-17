@@ -1,6 +1,6 @@
 package com.softport.meenvspringboot.services;
 
-import com.softport.meenvspringboot.models.User;
+import com.softport.meenvspringboot.user.User;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 

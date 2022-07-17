@@ -1,4 +1,4 @@
-package com.softport.meenvspringboot.models;
+package com.softport.meenvspringboot.group;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
