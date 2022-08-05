@@ -30,6 +30,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable();
+        http.cors();
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         http.authorizeRequests().antMatchers(HttpMethod.POST, "/users").permitAll();
         http.authorizeRequests().antMatchers(HttpMethod.POST, "/groups").permitAll();
@@ -52,6 +53,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(this.userDetailsService).passwordEncoder(this.bCryptPasswordEncoder);
     }
+
+
 
 
 }
