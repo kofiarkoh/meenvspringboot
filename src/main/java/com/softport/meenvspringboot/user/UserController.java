@@ -1,5 +1,6 @@
 package com.softport.meenvspringboot.user;
 
+import java.util.List;
 import java.util.Optional;
 
 import javax.validation.Valid;
@@ -60,6 +61,11 @@ public class UserController {
                 .orElseThrow(()-> new AppException("User not found",HttpStatus.BAD_REQUEST));
         newUserInfo.setPassword(existingUserInfo.getPassword());
         return new ResponseEntity<>( userRepository.save(newUserInfo), HttpStatus.CREATED);
+    }
+
+    @GetMapping("admin/users")
+    public ResponseEntity<?> getAllUsers(){
+        return new ResponseEntity<>(userRepository.findAll(),HttpStatus.OK);
     }
 
 }
