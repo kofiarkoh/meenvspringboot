@@ -12,5 +12,10 @@ public interface MessageRepository extends CrudRepository<Message, Long> {
     * */
     @Query(value = "select m from Message m where m.userId = ?1 group by m.messageId")
     List<Message> getMessageByUserId(Long userId);
+
+    @Query(value = "select m from Message m group by m.messageId")
+    List<Message> getMessageByAllUsers();
    // List<Message> getMessageByUserId(Long userId);
+
+
 }

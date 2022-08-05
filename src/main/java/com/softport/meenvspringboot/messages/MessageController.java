@@ -60,4 +60,19 @@ public class MessageController {
 
         return new ResponseEntity<>("Message recieved for delivery.", HttpStatus.OK);
     }
+
+
+    /*
+    * FOLLOWING END POINTS ARE FOR ADMIN DASHBOARD ONLY
+    * */
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<?> getMessageByUserId(@PathVariable("userId") long userId){
+        return new ResponseEntity<>(messageService.getMessageByUserId(userId), HttpStatus.OK);
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<?> getAllMessages(){
+        return new ResponseEntity<>(messageRepository.getMessageByAllUsers(), HttpStatus.OK);
+    }
+
 }
