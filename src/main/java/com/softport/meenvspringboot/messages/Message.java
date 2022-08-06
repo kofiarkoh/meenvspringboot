@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import java.util.Date;
 
 @Entity @Data @RequiredArgsConstructor
 public class Message {
@@ -30,6 +31,8 @@ public class Message {
     private int recipientCount;
 
     private String messageId;
+
+    private Date date = new Date();
 
 
 }
