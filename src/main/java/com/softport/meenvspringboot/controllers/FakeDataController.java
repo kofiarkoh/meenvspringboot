@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -42,6 +43,7 @@ public class FakeDataController {
             user.setPassword(passwordEncoder.encode("msp1"));
             user.setId(faker.number().randomNumber());
             users.add(user);
+
         }
         userRepository.saveAll(users);
         List<User> createdUsers = (List<User>) userRepository.findAll();
@@ -49,7 +51,7 @@ public class FakeDataController {
             randomMessages(user.getId(),faker);
             fakeTopUps(user.getId(),faker);
         });
-        // generate random transaction data
+
         return new ResponseEntity<>("Fake data generated", HttpStatus.OK);
     }
 
@@ -76,18 +78,39 @@ public class FakeDataController {
 
     private void fakeTopUps(long userId,Faker faker){
         List<TopUp> topUps = new ArrayList<>();
-        for (int i=0 ; i< 8; i++){
-            TopUp topUp = new TopUp();
-            topUp.setOtp(Long.parseLong(faker.number().digits(5)));
-            topUp.setPhoneNumber(faker.phoneNumber().subscriberNumber(10));
-            topUp.setAmount(faker.number().numberBetween(1,50));
-            topUp.setSmsQuantity(faker.number().numberBetween(20,500));
-            topUp.setDate(faker.date().birthday());
-            topUp.setTransactionId(faker.idNumber().valid());
-            topUp.setNetwork(faker.options().nextElement(List.of("MTN","AIRTIG","VOD")));
-            topUp.setStatus(faker.options().nextElement(List.of("PENDING","FAILED","SUCCESS")));
-            topUps.add(topUp);
+        try{
+            for (int i=0 ; i< 8; i++){
+                TopUp topUp = new TopUp();
+
+               /* topUp.setOtp(3232);
+                topUp.setSmsQuantity(20L);
+                topUp.setAmount(4.23f);
+                topUp.setPhoneNumber("0243857743");
+                topUp.setStatus("succes");
+                topUp.setUserId(userId);
+                topUp.setTransactionId("12121212");
+                topUp.setNetwork("MTN");
+                topUp.setDate(new Date());*/
+
+               topUp.setPhoneNumber(faker.phoneNumber().subscriberNumber(10));
+               topUp.setOtp(Long.parseLong(faker.number().digits(5)));
+                topUp.setSmsQuantity(faker.number().numberBetween(20,500));
+                topUp.setAmount((float) faker.number().numberBetween(1, 50) );
+                topUp.setDate(faker.date().birthday());
+                topUp.setStatus(faker.options().nextElement(List.of("PENDING","FAILED","SUCCESS")));
+                topUp.setTransactionId(faker.idNumber().valid());
+                topUp.setNetwork(faker.options().nextElement(List.of("MTN","AIRTIG","VOD")));
+                topUp.setUserId(userId);
+
+                //faker.options().nextElement(List.of("MTN","AIRTIG","VOD"))
+
+                topUps.add(topUp);
+            }
+            topupRepository.saveAll(topUps);
         }
-        topupRepository.saveAll(topUps);
+        catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+
     }
 }

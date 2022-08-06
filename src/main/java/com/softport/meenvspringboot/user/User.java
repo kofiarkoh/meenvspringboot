@@ -38,11 +38,11 @@ public class User {
     private long id;
 
     @Column
-    @Length(min = 3, message = "First name must be at least 3 characters")
+    @Length(min = 2, message = "First name must be at least 3 characters")
     private String firstName;
 
     @Column
-    @Length(min = 3, message = "Last name must be at least 3 characters")
+    @Length(min = 2, message = "Last name must be at least 3 characters")
     private String lastName;
 
     @Column
