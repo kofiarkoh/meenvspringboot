@@ -48,4 +48,7 @@ public class TopUp {
 
     @Column
     private Date date;
+
+    @Column
+    private String status;
 }

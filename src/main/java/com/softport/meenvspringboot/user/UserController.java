@@ -30,7 +30,7 @@ public class UserController {
     private final UserRepository userRepository;
     private final UserService userService;
 
-    @PostMapping("/users")
+    @PostMapping("/usersignup")
     public ResponseEntity<User> signUp(@RequestBody @Valid User user) {
         if ( userRepository.existsByPhoneNumber(user.getPhoneNumber())) {
             throw new AppException("Phone Number taken by another user",HttpStatus.BAD_REQUEST);
