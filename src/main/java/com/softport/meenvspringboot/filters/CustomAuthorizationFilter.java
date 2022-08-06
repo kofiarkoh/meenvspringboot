@@ -68,6 +68,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 
 
                     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                    response.setStatus(400);
                     new ObjectMapper().writeValue(response.getOutputStream(),
                             new ErrorDTO(e.getMessage(), HttpStatus.BAD_REQUEST.value(), new Date().toGMTString())
                     );
