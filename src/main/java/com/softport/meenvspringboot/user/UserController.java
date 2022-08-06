@@ -64,7 +64,7 @@ public class UserController {
         return new ResponseEntity<>( userRepository.save(newUserInfo), HttpStatus.CREATED);
     }
 
-    @GetMapping("admin/users")
+    @GetMapping("users/all")
     public ResponseEntity<?> getAllUsers(){
         return new ResponseEntity<>(userRepository.findAll(),HttpStatus.OK);
     }

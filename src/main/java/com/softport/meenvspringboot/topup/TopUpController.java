@@ -20,6 +20,10 @@ import java.util.Random;
 public class TopUpController {
 
     private final TopupRepository topupRepository;
+
+    /*
+    * request topup end point
+    * */
     @PostMapping("user/topup")
     public ResponseEntity<?> requestTopUp(@RequestBody TopUp topUp){
 
@@ -51,5 +55,15 @@ public class TopUpController {
        }
        // Process payment with Paystack.
        return new ResponseEntity<>("Processing payment",HttpStatus.OK);
+    }
+
+    @GetMapping("users/topups")
+    public ResponseEntity<?> fetchAllTopUps(){
+        return new ResponseEntity<>(topupRepository.findAll(),HttpStatus.OK);
+    }
+
+    @GetMapping("users/{id}/topups")
+    public ResponseEntity<?> fetchAllTopUpsByUserId(@PathVariable long id){
+        return new ResponseEntity<>(topupRepository.findAllByUserId(id),HttpStatus.OK);
     }
 }

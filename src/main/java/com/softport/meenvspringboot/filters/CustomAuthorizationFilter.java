@@ -76,6 +76,12 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
             }
             else {
                 log.info("token not found");
+                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                new ObjectMapper().writeValue(response.getOutputStream(),
+                        new ErrorDTO("Authorization token not found",
+                                HttpStatus.UNAUTHORIZED.value(), new Date().toGMTString())
+                );
                 filterChain.doFilter(request, response);
             }
         }
