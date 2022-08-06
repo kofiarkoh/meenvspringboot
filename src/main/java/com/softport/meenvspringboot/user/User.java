@@ -1,6 +1,7 @@
 package com.softport.meenvspringboot.user;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -50,14 +51,22 @@ public class User {
     private String phoneNumber;
 
     @Column
+    private String email = "";
+
+    @Column
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
     @Column
     private long smsBalance = 0;
 
+
+
     @Column
     private  long smsSent = 0;
+
+    @Column
+    private Date createdAt = new Date();
 
     /*
      * @OneToMany(cascade = CascadeType.ALL)
