@@ -37,6 +37,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         log.info("Authorization filter running");
+        System.out.println(request.getServletPath());
         if(request.getServletPath().equals("/login") || request.getServletPath().equals("/usersignup")){
             filterChain.doFilter(request,response);
         }
