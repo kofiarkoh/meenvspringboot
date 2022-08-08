@@ -1,0 +1,9 @@
+{
+  "status": true,
+  "message": "Authorization URL created",
+  "data": {
+    "authorization_url": "https://checkout.paystack.com/vo0pra9zrddf82r",
+    "access_code": "vo0pra9zrddf82r",
+    "reference": "FR-89-J9S-491375437"
+  }
+}

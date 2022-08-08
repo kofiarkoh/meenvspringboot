@@ -9,4 +9,5 @@ public interface TopupRepository extends CrudRepository<TopUp,Long> {
      Optional<TopUp> findByOtp(long otp);
 
      List<TopUp> findAllByUserId(long userId);
+     TopUp findByTransactionId(String transId);
 }
