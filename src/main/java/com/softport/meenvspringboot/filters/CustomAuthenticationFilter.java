@@ -5,8 +5,12 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.softport.meenvspringboot.dto.ErrorDTO;
 import com.softport.meenvspringboot.exceptions.AppException;
+import com.softport.meenvspringboot.repositories.UserRepository;
+import com.softport.meenvspringboot.services.AuthenticationService;
+import com.softport.meenvspringboot.user.User;
 import jdk.jfr.ContentType;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -16,7 +20,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.servlet.FilterChain;
@@ -34,6 +37,7 @@ class LoginDto{
     String password;
 }
 @Slf4j
+@RequiredArgsConstructor
 public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private AuthenticationManager authenticationManager;
@@ -63,8 +67,8 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         log.info("login success");
 
-        User user = (User) authResult.getPrincipal();
-        System.out.println(user);
+        com.softport.meenvspringboot.user.User user = (User) authResult.getPrincipal();
+
         Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
 
@@ -83,8 +87,10 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
                 .sign(algorithm);
 
         Map<String, Object> data =  new HashMap<>();
+        data.put("user", user);
         data.put("accessToken", accessToken);
         data.put("refreshToken", refreshToken);
+
 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         new ObjectMapper().writeValue(response.getOutputStream(), data);

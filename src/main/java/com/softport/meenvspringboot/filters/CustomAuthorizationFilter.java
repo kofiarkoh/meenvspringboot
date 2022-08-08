@@ -32,12 +32,16 @@ import java.util.*;
 public class CustomAuthorizationFilter extends OncePerRequestFilter {
     private final UserRepository userRepository;
 
+    private List<String> ignoredRoutes = List.of("/login","/usersignup","/payment/hook");
 
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         log.info("Authorization filter running");
-        if(request.getServletPath().equals("/login")){
+        System.out.println(request.getServletPath());
+
+        if(ignoredRoutes.contains(request.getServletPath())){
+            log.info("mathc");
             filterChain.doFilter(request,response);
         }
         else {
@@ -68,6 +72,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 
 
                     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                    response.setStatus(400);
                     new ObjectMapper().writeValue(response.getOutputStream(),
                             new ErrorDTO(e.getMessage(), HttpStatus.BAD_REQUEST.value(), new Date().toGMTString())
                     );
@@ -75,6 +80,12 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
             }
             else {
                 log.info("token not found");
+                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                new ObjectMapper().writeValue(response.getOutputStream(),
+                        new ErrorDTO("Authorization token not found",
+                                HttpStatus.UNAUTHORIZED.value(), new Date().toGMTString())
+                );
                 filterChain.doFilter(request, response);
             }
         }

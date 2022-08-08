@@ -2,6 +2,8 @@ package com.softport.meenvspringboot.exceptions;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.softport.meenvspringboot.dto.ErrorDTO;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.TypeMismatchException;

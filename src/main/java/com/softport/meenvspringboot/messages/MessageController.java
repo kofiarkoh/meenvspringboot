@@ -3,6 +3,7 @@ package com.softport.meenvspringboot.messages;
 import com.softport.meenvspringboot.dto.SendMessageDTO;
 import com.softport.meenvspringboot.exceptions.AppException;
 import com.softport.meenvspringboot.group.Groups;
+import com.softport.meenvspringboot.repositories.UserRepository;
 import com.softport.meenvspringboot.user.User;
 import com.softport.meenvspringboot.repositories.GroupRepository;
 import com.softport.meenvspringboot.repositories.MessageRepository;
@@ -24,6 +25,7 @@ public class MessageController {
     private final GroupRepository groupRepository;
 
     private final MessageService messageService;
+    private final UserRepository userRepository;
 
     @GetMapping
     public ResponseEntity<?> getUserMessages() {
@@ -36,10 +38,14 @@ public class MessageController {
     public ResponseEntity<?> storeMessage(@RequestBody SendMessageDTO sendMessageDTO) {
 
         User user = AuthenticationService.getAuthenticatedUser();
+        long recipientCount = 0;
         if (sendMessageDTO.isToGroup()) {
             Groups group = groupRepository.findById(sendMessageDTO.getGroupId()).orElseThrow(() -> new AppException("Group not found", HttpStatus.NOT_FOUND));
 
             this.messageService.saveMessage(user.getId(), group.getContacts(), sendMessageDTO);
+
+
+           recipientCount = group.getContacts().size();
 
         } else {
 
@@ -56,8 +62,28 @@ public class MessageController {
 
             // save individual message to database.
             this.messageService.saveMessage(user.getId(), sendMessageDTO.getRecipients(), sendMessageDTO);
+            recipientCount = sendMessageDTO.getRecipients().size();
         }
 
+        //  update user balance
+        user.setSmsBalance(user.getSmsBalance()-recipientCount);
+        user.setSmsSent(user.getSmsSent()+recipientCount);
+        userRepository.save(user);
         return new ResponseEntity<>("Message recieved for delivery.", HttpStatus.OK);
     }
+
+
+    /*
+    * FOLLOWING END POINTS ARE FOR ADMIN DASHBOARD ONLY
+    * */
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<?> getMessageByUserId(@PathVariable("userId") long userId){
+        return new ResponseEntity<>(messageService.getMessageByUserId(userId), HttpStatus.OK);
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<?> getAllMessages(){
+        return new ResponseEntity<>(messageRepository.getMessageByAllUsers(), HttpStatus.OK);
+    }
+
 }
