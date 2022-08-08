@@ -34,5 +34,9 @@ public class Message {
 
     private Date date = new Date();
 
+    public String getDate(){
+        return  this.date.toGMTString();
+    }
+
 
 }
