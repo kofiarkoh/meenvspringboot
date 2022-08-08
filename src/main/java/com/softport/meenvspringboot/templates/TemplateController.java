@@ -11,18 +11,17 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("template")
 public class TemplateController {
 
     private final TemplateRepository templateRepository;
 
-    @PostMapping
+    @PostMapping("templates")
     public ResponseEntity<Template> addTemplate(@RequestBody Template template){
         template.setUserId(AuthenticationService.getAuthenticatedUser().getId());
         return new ResponseEntity<>( templateRepository.save(template), HttpStatus.CREATED);
     }
 
-    @GetMapping
+    @GetMapping("templates")
     public ResponseEntity<List<Template>> getUserTemplates(){
         return new ResponseEntity<>(templateRepository.findTemplateByUserId(AuthenticationService.getAuthenticatedUser().getId()),HttpStatus.OK);
     }
