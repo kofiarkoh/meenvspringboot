@@ -33,12 +33,26 @@ public class TopUpController {
         long otp = random.nextLong(99999);
         topUp.setOtp(otp);
         topUp.setDate(new Date());
+        topUp.setStatus("pending");
         topUp.setUserId(AuthenticationService.getAuthenticatedUser().getId());
 
         return new ResponseEntity<>(topupRepository.save(topUp),HttpStatus.OK);
 
     }
 
+    /*
+    * fetch all topups by current authenticated user
+    * */
+
+    @GetMapping("user/topups")
+    public ResponseEntity<?> fetchAllTopUpsByAuthUser(){
+        return new ResponseEntity<>(topupRepository.findAllByUserId(AuthenticationService.getAuthenticatedUser().getId()),HttpStatus.OK);
+    }
+
+
+    /*
+    * veirfy OTP code
+    * */
     @GetMapping ("topup/verify_otp/{otp}")
     public ResponseEntity<?> verifyTopOTP(@PathVariable long otp){
 
@@ -57,6 +71,8 @@ public class TopUpController {
        return new ResponseEntity<>("Processing payment",HttpStatus.OK);
     }
 
+
+    /* DASHBOARD ADMINSTRATOR ROUTES */
     @GetMapping("users/topups")
     public ResponseEntity<?> fetchAllTopUps(){
         return new ResponseEntity<>(topupRepository.findAll(),HttpStatus.OK);
