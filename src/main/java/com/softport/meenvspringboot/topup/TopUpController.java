@@ -39,7 +39,7 @@ public class TopUpController {
         long otp = random.nextLong(99999);
         topUp.setOtp(otp);
         topUp.setDate(new Date());
-        topUp.setStatus("pending");
+        topUp.setStatus("PENDING");
         topUp.setUserId(AuthenticationService.getAuthenticatedUser().getId());
 
         return new ResponseEntity<>(topupRepository.save(topUp),HttpStatus.OK);
