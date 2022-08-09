@@ -27,6 +27,8 @@ public class TopUpController {
     private final TopupRepository topupRepository;
     private final UserRepository userRepository;
 
+    private final TopUpService topUpService;
+
     /*
     * request topup end point
     * */
@@ -64,15 +66,12 @@ public class TopUpController {
 
         TopUp topupData = topupRepository.findByOtp(otp).orElseThrow(()->new AppException("Invalid OTP",HttpStatus.NOT_FOUND));
 
-        /*
-        * OTP is only valid for 5 mins
-        * check if OTP is valid before procressing payment with Paystack.
-        * */
-       Instant now = Instant.now();
-       Duration timeElapsed = Duration.between(topupData.getDate().toInstant(),now);
-       if (timeElapsed.toMinutes() > 5) {
-          throw  new AppException("Expired OTP",HttpStatus.BAD_REQUEST);
-       }
+       // verify otp
+       ;
+        if (! topUpService.isOTPValid(topupData)) {
+             throw  new AppException("Expired OTP", HttpStatus.BAD_REQUEST);
+            //return false;
+        }
        // Process payment with Paystack.
 
         MomoRequestDTO body = new MomoRequestDTO(
@@ -108,10 +107,16 @@ public class TopUpController {
     }
 
     @PostMapping("payment/hook")
-    public ResponseEntity<?> paymentWebhook(@RequestBody ChargeResult response){
-        System.out.println(response);;
-        TopUp topUp = topupRepository.findByTransactionId(response.getData().getReference());
-        String status = response.getData().getStatus();
+    public ResponseEntity<?> paymentWebhook(@RequestBody ChargeResult chargeResult){
+     //   System.out.println(chargeResult);;
+
+        TopUp topUp = topupRepository.findByTransactionId(chargeResult.getData().getReference());
+        if(topUp == null){
+           // no item found , therefore return request silently without performing any operation
+            return new ResponseEntity<>(chargeResult,HttpStatus.OK);
+
+        }
+        String status = chargeResult.getData().getStatus();
         if (status.equals("success") && !topUp.getStatus().equals("SUCCESS")){
 
             topUp.setStatus("SUCCESS");
@@ -125,7 +130,7 @@ public class TopUpController {
         }
 
         topupRepository.save(topUp);
-        return new ResponseEntity<>(response,HttpStatus.OK);
+        return new ResponseEntity<>(chargeResult,HttpStatus.OK);
 
     }
 
