@@ -100,38 +100,19 @@ public class TopUpController {
         return new ResponseEntity(res,HttpStatus.OK);
     }
 
+
+    @PostMapping("payment/hook")
+    public ResponseEntity<?> paymentWebhook(@RequestBody ChargeResult chargeResult){
+
+        topUpService.verifyPaymentWebhookResponse(chargeResult);
+        return new ResponseEntity<>("ok",HttpStatus.OK);
+
+    }
+
     /* DASHBOARD ADMINSTRATOR ROUTES */
     @GetMapping("users/topups")
     public ResponseEntity<?> fetchAllTopUps(){
         return new ResponseEntity<>(topupRepository.findAll(),HttpStatus.OK);
-    }
-
-    @PostMapping("payment/hook")
-    public ResponseEntity<?> paymentWebhook(@RequestBody ChargeResult chargeResult){
-     //   System.out.println(chargeResult);;
-
-        TopUp topUp = topupRepository.findByTransactionId(chargeResult.getData().getReference());
-        if(topUp == null){
-           // no item found , therefore return request silently without performing any operation
-            return new ResponseEntity<>(chargeResult,HttpStatus.OK);
-
-        }
-        String status = chargeResult.getData().getStatus();
-        if (status.equals("success") && !topUp.getStatus().equals("SUCCESS")){
-
-            topUp.setStatus("SUCCESS");
-            // update customer's balance
-            User user =  userRepository.findById(topUp.getUserId()).get();
-            user.setSmsBalance(user.getSmsBalance() + topUp.getSmsQuantity());
-        }
-        else if(status.equals("failed") || status.equals("timeout")){
-            topUp.setStatus("FAILED");
-
-        }
-
-        topupRepository.save(topUp);
-        return new ResponseEntity<>(chargeResult,HttpStatus.OK);
-
     }
 
 
