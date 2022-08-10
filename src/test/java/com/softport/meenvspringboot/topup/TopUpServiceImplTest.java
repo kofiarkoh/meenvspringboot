@@ -31,8 +31,6 @@ class TopUpServiceImplTest {
    @InjectMocks
    private    TopUpServiceImpl topUpService;
 
-  // private final FakeData fakeData;
-   private final String[] transactionIds = {"4232h","sf223","882373","998823","8123"};
 
    private ChargeResult chargeResult;
    private User user;
@@ -93,12 +91,23 @@ class TopUpServiceImplTest {
         verify(userRepository).save(userArgumentCaptor.capture());
         User userInfoUpdated = userArgumentCaptor.getValue();
 
-        /*System.out.println(user.getSmsBalance());
-        System.out.println(userInfoUpdated.getSmsBalance());*/
         assertThat(userInfoUpdated.getSmsBalance()).isEqualTo(390);
         assertThat(userInfoUpdated.getSmsSent()).isEqualTo(100);
 
 
 
+    }
+
+    @Test
+    void top_data_correctly_updated_for_failed_topup(){
+        chargeResult.getData().setStatus("failed");
+        when(topupRepository.findByTransactionId("sf223")).thenReturn(topUpData);
+
+        topUpService.verifyPaymentWebhookResponse(chargeResult);
+
+        ArgumentCaptor<TopUp> topUpArgumentCaptor = ArgumentCaptor.forClass(TopUp.class);
+        verify(topupRepository).save(topUpArgumentCaptor.capture());
+        TopUp capturedTopup = topUpArgumentCaptor.getValue();
+        assertThat(capturedTopup.getStatus()).isEqualTo("FAILED");
     }
 }

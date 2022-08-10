@@ -44,34 +44,27 @@ public class TopUpServiceImpl implements TopUpService {
 
     @Override
     public void verifyPaymentWebhookResponse(ChargeResult response) {
-        log.info("trans id is {}",response.getData().getReference());
         TopUp topUp = topupRepository.findByTransactionId(response.getData().getReference());
 
         if(topUp == null){
             // no item found , therefore return request silently without performing any operation
-            //return new ResponseEntity<>(response,HttpStatus.OK);
-            log.info("topup not found");
             return;
         }
-        log.info("topup found");
         String status = response.getData().getStatus();
-        if (status.equals("success") && !status.equals("SUCCESS")){
+        if (status.equalsIgnoreCase("success") && !topUp.getStatus().equals("SUCCESS")){
             topUp.setStatus("SUCCESS");
-            log.info("setting success field");
+
             // update customer's balance
             Optional<User> userOptional = userRepository.findById(topUp.getUserId());
             if (userOptional.isPresent()){
                 User user =  userOptional.get();
                 user.setSmsBalance(user.getSmsBalance() + topUp.getSmsQuantity());
-                log.info("user retrieved is {}",user);
                 userRepository.save(user);
             }
-            else {
-                log.info("optional user is empty");
-            }
+
 
         }
-        else if(status.equals("failed") || status.equals("timeout")){
+        else if(status.equalsIgnoreCase("failed") || status.equals("timeout")){
             topUp.setStatus("FAILED");
 
         }
