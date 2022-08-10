@@ -2,7 +2,7 @@ package com.softport.meenvspringboot.topup;
 
 public interface TopUpService {
 
-     boolean isOTPValid(TopUp topUp);
+     boolean isOTPInValid(TopUp topUp);
 
      void verifyPaymentWebhookResponse(ChargeResult chargeResult);
 }

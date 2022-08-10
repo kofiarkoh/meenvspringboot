@@ -29,7 +29,7 @@ public class TopUpServiceImpl implements TopUpService {
     private final   UserRepository userRepository;
 
     @Override
-    public boolean isOTPValid(TopUp topUpData) {
+    public boolean isOTPInValid(TopUp topUpData) {
         /*
          * OTP is only valid for 5 mins
          * check if OTP is valid before procressing payment with Paystack.
@@ -37,7 +37,7 @@ public class TopUpServiceImpl implements TopUpService {
         Instant now = Instant.now();
         Duration timeElapsed = Duration.between(topUpData.getDate().toInstant(),now);
 
-
+        log.info("OTP DURATION IN MINS IS {}",timeElapsed.toMinutes());
         return timeElapsed.toMinutes() > 5 ;
 
     }

@@ -61,32 +61,27 @@ public class TopUpController {
     /*
     * veirfy OTP code
     * */
-    @GetMapping ("topup/verify_otp/{otp}")
+    @GetMapping ("top_up/verify_otp/{otp}")
     public ResponseEntity<?> verifyTopOTP(@PathVariable long otp){
 
         TopUp topupData = topupRepository.findByOtp(otp).orElseThrow(()->new AppException("Invalid OTP",HttpStatus.NOT_FOUND));
-
-       // verify otp
-       ;
-        if (! topUpService.isOTPValid(topupData)) {
+        // verify otp;
+        log.info("OTP RECIEVED IS {}",otp);
+        if ( topUpService.isOTPInValid(topupData)) {
              throw  new AppException("Expired OTP", HttpStatus.BAD_REQUEST);
-            //return false;
         }
-       // Process payment with Paystack.
 
+        // Process payment with Paystack.
         MomoRequestDTO body = new MomoRequestDTO(
                 100,
                 "kofarkoh0@gmail.com",
                 "GHS",
                 new MomoDTO(topupData.getPhoneNumber(),topupData.getNetwork().toLowerCase()) ,
                 "s", topupData.getTransactionId()
-
         );
-
         InitTransactionResponse initTransactionResponse = PayStack.makePaymentReques(body);
-        System.out.println(initTransactionResponse);
-      //  if (initTransactionResponse.getData().get)
-       return new ResponseEntity<>("Processing payment",HttpStatus.OK);
+
+       return new ResponseEntity<>(initTransactionResponse.getData().getAuthorization_url(),HttpStatus.OK);
     }
 
     /*
