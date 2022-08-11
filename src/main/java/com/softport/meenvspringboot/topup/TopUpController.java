@@ -3,6 +3,7 @@ package com.softport.meenvspringboot.topup;
 import com.softport.meenvspringboot.exceptions.AppException;
 import com.softport.meenvspringboot.repositories.UserRepository;
 import com.softport.meenvspringboot.services.AuthenticationService;
+import com.softport.meenvspringboot.user.MiscData;
 import com.softport.meenvspringboot.user.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,13 +40,26 @@ public class TopUpController {
         Random random = new Random();
         topUp.setTransactionId(String.valueOf(random.nextLong(999999)));
         long otp = random.nextLong(99999);
+        Float amount = topUp.getSmsQuantity() * new MiscData().getPricePerSMS() ;
         topUp.setOtp(otp);
         topUp.setDate(new Date());
         topUp.setStatus("PENDING");
+        topUp.setAmount(amount);
         topUp.setUserId(AuthenticationService.getAuthenticatedUser().getId());
+        topupRepository.save(topUp);
+        // Process payment with Paystack.
+        MomoRequestDTO body = new MomoRequestDTO(
+                String.format("%.2f",amount),
+                "kofarkoh0@gmail.com",
+                "GHS",
+                new MomoDTO(topUp.getPhoneNumber(),topUp.getNetwork().toLowerCase()) ,
+                "s", topUp.getTransactionId()
+        );
+        InitTransactionResponse initTransactionResponse = PayStack.makePaymentReques(body);
 
-        return new ResponseEntity<>(topupRepository.save(topUp),HttpStatus.OK);
-
+        return new ResponseEntity<>(
+                initTransactionResponse.getData().getAuthorization_url()
+                ,HttpStatus.OK);
     }
 
     /*
@@ -73,7 +87,7 @@ public class TopUpController {
 
         // Process payment with Paystack.
         MomoRequestDTO body = new MomoRequestDTO(
-                100,
+                "100",
                 "kofarkoh0@gmail.com",
                 "GHS",
                 new MomoDTO(topupData.getPhoneNumber(),topupData.getNetwork().toLowerCase()) ,
