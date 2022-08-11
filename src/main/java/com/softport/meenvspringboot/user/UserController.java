@@ -56,8 +56,11 @@ public class UserController {
     }
 
     @GetMapping("user")
-    public ResponseEntity<User> getUser(){
-        return new ResponseEntity(userRepository.findById(AuthenticationService.getAuthenticatedUser().getId()).get(), HttpStatus.CREATED);
+    public ResponseEntity<UserWithMiscData> getUser(){
+        UserWithMiscData data = new UserWithMiscData();
+        data.setUser(userRepository.findById(AuthenticationService.getAuthenticatedUser().getId()).get());
+
+        return new ResponseEntity(data, HttpStatus.CREATED);
     }
     @GetMapping("users/{userID}")
     public ResponseEntity<?> getUser(@PathVariable Long userID) {
@@ -69,7 +72,6 @@ public class UserController {
 
     @PatchMapping("user")
     public ResponseEntity<User> updateUser(@Valid @RequestBody User newUserInfo) {
-
 
         return new ResponseEntity<>( userService.updateUser(newUserInfo), HttpStatus.CREATED);
     }
