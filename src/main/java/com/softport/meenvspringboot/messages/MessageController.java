@@ -4,6 +4,7 @@ import com.softport.meenvspringboot.dto.SendMessageDTO;
 import com.softport.meenvspringboot.exceptions.AppException;
 import com.softport.meenvspringboot.group.Groups;
 import com.softport.meenvspringboot.repositories.UserRepository;
+import com.softport.meenvspringboot.uellosend.UelloSend;
 import com.softport.meenvspringboot.user.User;
 import com.softport.meenvspringboot.repositories.GroupRepository;
 import com.softport.meenvspringboot.repositories.MessageRepository;
@@ -14,6 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.stream.Collectors;
 
 @RestController
 @Slf4j
@@ -46,6 +49,10 @@ public class MessageController {
 
 
            recipientCount = group.getContacts().size();
+            UelloSend.sendCampaign(sendMessageDTO.getMessage(),
+                    sendMessageDTO.getSenderId(),
+                    group.getContacts().stream().map(c -> c.getPhoneNumber()).collect(Collectors.toList()));
+
 
         } else {
 
@@ -63,6 +70,10 @@ public class MessageController {
             // save individual message to database.
             this.messageService.saveMessage(user.getId(), sendMessageDTO.getRecipients(), sendMessageDTO);
             recipientCount = sendMessageDTO.getRecipients().size();
+            UelloSend.sendCampaign(sendMessageDTO.getMessage(),
+                    sendMessageDTO.getSenderId(),
+                    sendMessageDTO.getRecipients().stream().map(c->c.getPhoneNumber()).collect(Collectors.toList()));
+
         }
 
         //  update user balance
