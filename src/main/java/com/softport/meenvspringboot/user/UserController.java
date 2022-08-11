@@ -102,7 +102,7 @@ public class UserController {
 
                 String accessToken = JWT.create().withSubject(user.getUsername())
                         // System.currentTimeMillis() + minutes * 60 * 1000
-                        .withExpiresAt(new Date(System.currentTimeMillis() + 100 * 60 * 1000))
+                        .withExpiresAt(new Date(System.currentTimeMillis() + 1 * 60 * 1000))
                         .withClaim("roles",authorities.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
                         .withIssuer(request.getRequestURL().toString())
 
