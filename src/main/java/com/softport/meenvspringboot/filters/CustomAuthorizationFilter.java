@@ -39,11 +39,16 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        log.info("Authorization filter running");
-        System.out.println(request.getServletPath());
+
+        String reqPath = request.getServletPath();
 
         if(ignoredRoutes.contains(request.getServletPath())){
             log.info("mathc");
+            filterChain.doFilter(request,response);
+        }
+        else if (
+                reqPath.matches("/user/resetpassword/verify/.+")
+        ){
             filterChain.doFilter(request,response);
         }
         else {

@@ -18,6 +18,7 @@ import com.softport.meenvspringboot.OTP.OTPService;
 import com.softport.meenvspringboot.dto.ErrorDTO;
 import com.softport.meenvspringboot.exceptions.AppException;
 import com.softport.meenvspringboot.services.AuthenticationService;
+import com.softport.meenvspringboot.uellosend.UelloSend;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -67,12 +68,34 @@ public class UserController {
             throw new AppException("No account found for the phone number provided",HttpStatus.NOT_FOUND);
         }
         OTP otp = otpService.generate(
-                this.passwordEncoder.encode(data.getNewPassword()),
                 user.getPhoneNumber(),
-                ""
+                this.passwordEncoder.encode(data.getNewPassword())
                 );
-        // "Please verify your phone number"
-        return new ResponseEntity<>(user, HttpStatus.OK);
+        //send OTP to user's phone number
+       /* UelloSend.sendCampaign(
+              "Password reset OTP is " + otp.getCode(),
+              "MEENV",
+              List.of(user.getPhoneNumber())
+        );*/
+        return new ResponseEntity<>(
+                "Please verify your phone number by confirming the OTP sent to you",
+                HttpStatus.OK);
+    }
+
+    @GetMapping("user/resetpassword/verify/{otp}")
+    public ResponseEntity<?> verifiIdentity(@PathVariable String otp){
+        OTP otpData = otpService.getOTP(otp);
+        User user = userRepository.findByPhoneNumber(otpData.getFirstIdentifier());
+
+        // update password
+        user.setPassword(otpData.getSecondIdentifier());
+        userRepository.save(user);
+
+        return new ResponseEntity<>(
+                "Password reset successful.",
+                HttpStatus.OK);
+
+
     }
 
     @GetMapping("user")

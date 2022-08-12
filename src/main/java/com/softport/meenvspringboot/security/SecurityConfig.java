@@ -41,6 +41,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests().antMatchers("/payment/hook").permitAll();
         http.authorizeRequests().antMatchers("/user/refresh_token").permitAll();
         http.authorizeRequests().antMatchers("/user/resetpassword").permitAll();
+        http.authorizeRequests().antMatchers("/user/resetpassword/verify/**").permitAll();
 
         http.authorizeRequests().antMatchers(HttpMethod.POST, "/groups").permitAll();
         //http.authorizeRequests().antMatchers()

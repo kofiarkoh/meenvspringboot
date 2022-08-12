@@ -21,8 +21,11 @@ public class OTP {
     @Column
     private Date date;
 
+    /* a value that can be attached to this otp to load different entity when verification is successfull*/
     @Column
     private String firstIdentifier;
+
+    /* another value that can be attached to this otp to load different entity when verification is successfull*/
 
     @Column
     private String secondIdentifier;
