@@ -13,6 +13,8 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.softport.meenvspringboot.OTP.OTP;
+import com.softport.meenvspringboot.OTP.OTPService;
 import com.softport.meenvspringboot.dto.ErrorDTO;
 import com.softport.meenvspringboot.exceptions.AppException;
 import com.softport.meenvspringboot.services.AuthenticationService;
@@ -24,6 +26,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import com.softport.meenvspringboot.repositories.UserRepository;
@@ -38,8 +41,9 @@ public class UserController {
 
     private final UserRepository userRepository;
     private final UserService userService;
+    private final OTPService otpService;
 
-
+    private final PasswordEncoder passwordEncoder;
 
     @PostMapping("/usersignup")
     public ResponseEntity<User> signUp(
@@ -53,6 +57,22 @@ public class UserController {
 
         return new ResponseEntity<>(user, HttpStatus.CREATED);
 
+    }
+
+    @PostMapping("user/resetpassword")
+    public ResponseEntity<?> resetPassword(@RequestBody PasswordResetDTO data){
+
+        User user = userRepository.findByPhoneNumber(data.getPhoneNumber());
+        if (user == null) {
+            throw new AppException("No account found for the phone number provided",HttpStatus.NOT_FOUND);
+        }
+        OTP otp = otpService.generate(
+                this.passwordEncoder.encode(data.getNewPassword()),
+                user.getPhoneNumber(),
+                ""
+                );
+        // "Please verify your phone number"
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     @GetMapping("user")

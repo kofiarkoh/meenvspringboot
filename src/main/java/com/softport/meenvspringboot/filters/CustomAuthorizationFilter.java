@@ -33,7 +33,8 @@ import java.util.*;
 public class CustomAuthorizationFilter extends OncePerRequestFilter {
     private final UserRepository userRepository;
 
-    private List<String> ignoredRoutes = List.of("/login","/usersignup","/payment/hook","/user/refresh_token");
+    private List<String> ignoredRoutes = List.of("/login","/usersignup","/payment/hook","/user/refresh_token",
+            "/user/resetpassword");
 
 
     @Override
