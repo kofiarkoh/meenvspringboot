@@ -1,6 +1,7 @@
 package com.softport.meenvspringboot.repositories;
 
 import com.softport.meenvspringboot.messages.Message;
+import com.softport.meenvspringboot.messages.MessageCount;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
@@ -15,6 +16,9 @@ public interface MessageRepository extends CrudRepository<Message, Long> {
 
     @Query(value = "select m from Message m group by m.messageId")
     List<Message> getMessageByAllUsers();
+
+    @Query(value = "select m.recipientCount from Message m group by m.messageId")
+    Object getTotalMessageSent();
    // List<Message> getMessageByUserId(Long userId);
 
 

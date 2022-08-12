@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class MiscData {
-    private float pricePerSMS =0.25f;
+    private float pricePerSMS =0.04f;
     private String appVersion = "4.23";
 }
