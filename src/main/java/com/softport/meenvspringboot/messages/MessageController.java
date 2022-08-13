@@ -49,6 +49,11 @@ public class MessageController {
 
 
            recipientCount = group.getContacts().size();
+           if (user.getSmsBalance() < recipientCount){
+               throw new AppException(
+                       "Insufficient SMS balance", HttpStatus.BAD_REQUEST
+               );
+           }
             UelloSend.sendCampaign(sendMessageDTO.getMessage(),
                     sendMessageDTO.getSenderId(),
                     group.getContacts().stream().map(c -> c.getPhoneNumber()).collect(Collectors.toList()));
@@ -70,6 +75,11 @@ public class MessageController {
             // save individual message to database.
             this.messageService.saveMessage(user.getId(), sendMessageDTO.getRecipients(), sendMessageDTO);
             recipientCount = sendMessageDTO.getRecipients().size();
+            if (user.getSmsBalance() < recipientCount){
+                throw new AppException(
+                        "Insufficient SMS balance", HttpStatus.BAD_REQUEST
+                );
+            }
             UelloSend.sendCampaign(sendMessageDTO.getMessage(),
                     sendMessageDTO.getSenderId(),
                     sendMessageDTO.getRecipients().stream().map(c->c.getPhoneNumber()).collect(Collectors.toList()));
