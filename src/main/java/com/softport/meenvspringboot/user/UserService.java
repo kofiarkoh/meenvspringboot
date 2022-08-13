@@ -7,4 +7,6 @@ public interface UserService {
 
     User updateUser(User newUserInfo);
 
+    boolean canSendSMS(int numRecipients,int balance);
+
 }

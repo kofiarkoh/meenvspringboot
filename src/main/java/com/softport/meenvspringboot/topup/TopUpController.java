@@ -113,6 +113,7 @@ public class TopUpController {
     @PostMapping("payment/hook")
     public ResponseEntity<?> paymentWebhook(@RequestBody ChargeResult chargeResult){
 
+        log.info("webhoost {}",chargeResult);
         topUpService.verifyPaymentWebhookResponse(chargeResult);
         return new ResponseEntity<>("ok",HttpStatus.OK);
 

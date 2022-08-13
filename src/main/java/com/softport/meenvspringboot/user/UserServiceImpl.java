@@ -44,5 +44,11 @@ public class UserServiceImpl implements   UserService{
         return userRepository.save(newUserInfo);
     }
 
+    @Override
+    public boolean canSendSMS(int numRecipients,int balance) {
+
+        return  balance > numRecipients ;
+    }
+
 
 }
