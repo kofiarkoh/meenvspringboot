@@ -36,6 +36,9 @@ public class TopUpController {
     @PostMapping("user/topup")
     public ResponseEntity<?> requestTopUp(@RequestBody TopUp topUp){
 
+        if (topUp.getSmsQuantity() < 50){
+            throw  new AppException("Minimum SMS quatity is 50",HttpStatus.BAD_REQUEST);
+        }
         //generate unique transaction ID and OTP
         Random random = new Random();
         topUp.setTransactionId(String.valueOf(random.nextLong(999999)));
