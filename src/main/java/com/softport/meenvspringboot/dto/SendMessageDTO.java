@@ -5,9 +5,10 @@ import com.softport.meenvspringboot.messages.Message;
 import lombok.Data;
 
 import java.util.Collection;
+import java.util.List;
 
 @Data
 public class SendMessageDTO extends Message {
-    private Collection<Contacts> recipients;
+    private List<Contacts> recipients;
     private long groupId;
 }
