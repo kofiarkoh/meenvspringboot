@@ -1,12 +1,10 @@
-package com.softport.meenvspringboot.models;
+package com.softport.meenvspringboot.messages;
 
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.Date;
 
 @Entity @Data @RequiredArgsConstructor
 public class Message {
@@ -17,6 +15,8 @@ public class Message {
 
     private String senderId;
 
+    @Lob
+    @Column(length = 281)
     private String message;
 
     private long userId;
@@ -30,6 +30,12 @@ public class Message {
     private int recipientCount;
 
     private String messageId;
+
+    private Date date = new Date();
+
+    public String getDate(){
+        return  this.date.toGMTString();
+    }
 
 
 }

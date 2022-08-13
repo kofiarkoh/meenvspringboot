@@ -1,30 +1,25 @@
-package com.softport.meenvspringboot.controllers;
+package com.softport.meenvspringboot.group;
 
 import com.softport.meenvspringboot.exceptions.AppException;
+import com.softport.meenvspringboot.services.AuthenticationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import com.softport.meenvspringboot.models.Groups;
-import com.softport.meenvspringboot.models.User;
+import com.softport.meenvspringboot.user.User;
 import com.softport.meenvspringboot.repositories.GroupRepository;
 import com.softport.meenvspringboot.repositories.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
-import java.util.Optional;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.w3c.dom.stylesheets.LinkStyle;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -45,6 +40,13 @@ public class GroupController {
         return new ResponseEntity<>(group, HttpStatus.CREATED);
     }
 
+    @GetMapping("/groups")
+    public ResponseEntity<?> getUserGroups() {
+
+        List<Groups> groups = groupRepository.findAllByUserId(AuthenticationService.getAuthenticatedUser().getId());
+        return new ResponseEntity<>(groups, HttpStatus.CREATED);
+    }
+
     @PostMapping(value = "groups/contacts")
     public ResponseEntity<Groups> updateGroup(@Valid @RequestBody Groups group) {
         /*
@@ -61,8 +63,14 @@ public class GroupController {
 
     @DeleteMapping(value = "groups/{groupId}")
     public ResponseEntity<?> deleteGroup(@PathVariable Long groupId) {
-        groupRepository.deleteById(groupId);
-        return new ResponseEntity<>("Group deleted succesfully", HttpStatus.OK);
+        if (groupRepository.existsById(groupId)){
+            groupRepository.deleteById(groupId);
+            return new ResponseEntity<>("Group deleted succesfully", HttpStatus.OK);
+        }
+        else{
+            throw new AppException("Group not found",HttpStatus.NOT_FOUND);
+        }
+
     }
 
 }

@@ -1,8 +1,8 @@
 package com.softport.meenvspringboot.services;
 
 import com.softport.meenvspringboot.dto.SendMessageDTO;
-import com.softport.meenvspringboot.models.Contacts;
-import com.softport.meenvspringboot.models.Message;
+import com.softport.meenvspringboot.group.Contacts;
+import com.softport.meenvspringboot.messages.Message;
 import com.softport.meenvspringboot.repositories.MessageRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
