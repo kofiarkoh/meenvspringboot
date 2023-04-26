@@ -8,7 +8,7 @@ RUN mvn clean package -DskipTests
 #RUN mvn clean package
 
 # Copy the application jar file to the container
-COPY target/*.jar app.jar
+COPY --from=build /target/*.jar app.jar
 
 # Expose port 8080
 EXPOSE 8080
