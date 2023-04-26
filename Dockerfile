@@ -3,7 +3,7 @@ FROM openjdk:17-jdk-slim
 
 # Set the working directory to /app
 FROM maven:3.9.0-eclipse-temurin-17-alpine AS build
-COPY ..
+COPY . .
 RUN mun clean package -DskipTests
 #RUN mvn clean package
 
