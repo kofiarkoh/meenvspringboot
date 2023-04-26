@@ -20,4 +20,4 @@ ENV DB_PASSWORD=Vbnm789090@
 EXPOSE 8080
 
 # Run the application with the database connection configuration
-CMD ["java", "-jar", "app.jar", "--spring.datasource.url=jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}", "--spring.datasource.username=${DB_USER}", "--spring.datasource.password=${DB_PASSWORD}"]
+CMD ["java", "-jar", "app.jar", "--spring.datasource.url=jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?useSSL=false", "--spring.datasource.username=${DB_USER}", "--spring.datasource.password=${DB_PASSWORD}" ,"--spring.jpa.hibernate.ddl-auto=update"]
