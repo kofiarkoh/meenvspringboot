@@ -30,14 +30,12 @@ public class UserController {
     private final UserRepository userRepository;
     private final UserService userService;
 
-
-
     @PostMapping("/usersignup")
     public ResponseEntity<User> signUp(
             HttpServletResponse httpServletResponse,
             @RequestBody @Valid User user) throws IOException {
-        if ( userRepository.existsByPhoneNumber(user.getPhoneNumber())) {
-            throw new AppException("Phone Number taken by another user",HttpStatus.BAD_REQUEST);
+        if (userRepository.existsByPhoneNumber(user.getPhoneNumber())) {
+            throw new AppException("Phone Number taken by another user", HttpStatus.BAD_REQUEST);
         }
 
         user = userService.saveUser(user);
@@ -47,13 +45,16 @@ public class UserController {
     }
 
     @GetMapping("user")
-    public ResponseEntity<User> getUser(){
-        return new ResponseEntity(userRepository.findById(AuthenticationService.getAuthenticatedUser().getId()).get(), HttpStatus.CREATED);
+    public ResponseEntity<User> getUser() {
+        return new ResponseEntity<User>(
+                userRepository.findById(AuthenticationService.getAuthenticatedUser().getId()).get(),
+                HttpStatus.CREATED);
     }
+
     @GetMapping("users/{userID}")
     public ResponseEntity<?> getUser(@PathVariable Long userID) {
         User user = userRepository.findById(userID)
-                .orElseThrow(()-> new AppException("User not found",HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new AppException("User not found", HttpStatus.NOT_FOUND));
 
         return new ResponseEntity<>(user, HttpStatus.CREATED);
     }
@@ -61,21 +62,21 @@ public class UserController {
     @PatchMapping("user")
     public ResponseEntity<User> updateUser(@Valid @RequestBody User newUserInfo) {
         /*
-        * merge existing info with incoming user object.
-        * set incoming object's password with existing password
-        * set incoming object's smsSent and smsBalance with existing ones to prevent
-        * the possibility of the user supplying new balance to cheat the system.
-        * */
-        User loggedInUserData  = (User) SecurityContextHolder.getContext().getAuthentication().getDetails();
-        User existingUserInfo  = userRepository.findById(loggedInUserData.getId())
-                .orElseThrow(()-> new AppException("User not found",HttpStatus.BAD_REQUEST));
+         * merge existing info with incoming user object.
+         * set incoming object's password with existing password
+         * set incoming object's smsSent and smsBalance with existing ones to prevent
+         * the possibility of the user supplying new balance to cheat the system.
+         */
+        User loggedInUserData = (User) SecurityContextHolder.getContext().getAuthentication().getDetails();
+        User existingUserInfo = userRepository.findById(loggedInUserData.getId())
+                .orElseThrow(() -> new AppException("User not found", HttpStatus.BAD_REQUEST));
         newUserInfo.setPassword(existingUserInfo.getPassword());
-        return new ResponseEntity<>( userRepository.save(newUserInfo), HttpStatus.CREATED);
+        return new ResponseEntity<>(userRepository.save(newUserInfo), HttpStatus.CREATED);
     }
 
     @GetMapping("users/all")
-    public ResponseEntity<?> getAllUsers(){
-        return new ResponseEntity<>(userRepository.findAll(),HttpStatus.OK);
+    public ResponseEntity<?> getAllUsers() {
+        return new ResponseEntity<>(userRepository.findAll(), HttpStatus.OK);
     }
 
 }
