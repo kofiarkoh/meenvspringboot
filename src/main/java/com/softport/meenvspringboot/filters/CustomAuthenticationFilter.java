@@ -33,30 +33,31 @@ import java.util.stream.Collectors;
 
 @Data
 
-class LoginDto{
+class LoginDto {
     String username;
     String password;
 }
+
 @Slf4j
 @RequiredArgsConstructor
 public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private AuthenticationManager authenticationManager;
 
-    public CustomAuthenticationFilter(AuthenticationManager authenticationManager){
+    public CustomAuthenticationFilter(AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
     }
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
             throws AuthenticationException {
-        ObjectMapper mapper= new ObjectMapper();
+        ObjectMapper mapper = new ObjectMapper();
         try {
             LoginDto loginDto = mapper.readValue(request.getInputStream(), LoginDto.class);
-            log.info("username is {} ",loginDto.getUsername());
-            log.info("password is {} ",loginDto.getPassword());
-            UsernamePasswordAuthenticationToken authenticationToken =
-                    new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword());
+            log.info("username is {} ", loginDto.getUsername());
+            log.info("password is {} ", loginDto.getPassword());
+            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                    loginDto.getUsername(), loginDto.getPassword());
             return this.authenticationManager.authenticate(authenticationToken);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -65,7 +66,8 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
     }
 
     @Override
-    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
+            Authentication authResult) throws IOException, ServletException {
         log.info("login success");
 
         com.softport.meenvspringboot.user.User user = (User) authResult.getPrincipal();
@@ -73,12 +75,12 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
 
-
         Algorithm algorithm = Algorithm.HMAC256("somesecret".getBytes());
         String accessToken = JWT.create().withSubject(user.getUsername())
                 // System.currentTimeMillis() + minutes * 60 * 1000
                 .withExpiresAt(new Date(System.currentTimeMillis() + 100 * 60 * 1000))
-                .withClaim("roles",authorities.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
+                .withClaim("roles",
+                        authorities.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
                 .withIssuer(request.getRequestURL().toString())
                 .sign(algorithm);
 
@@ -88,22 +90,23 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
                 .withIssuer(request.getRequestURL().toString())
                 .sign(algorithm);
 
-        Map<String, Object> data =  new HashMap<>();
+        Map<String, Object> data = new HashMap<>();
         data.put("user", user);
-        data.put("accessToken", accessToken);
-        data.put("refreshToken", refreshToken);
-        data.put("miscData",new MiscData());
-
+        data.put("access_token", accessToken);
+        data.put("refresh_token", refreshToken);
+        data.put("misc_tata", new MiscData());
 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         new ObjectMapper().writeValue(response.getOutputStream(), data);
     }
 
     @Override
-    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
+    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+            AuthenticationException failed) throws IOException, ServletException {
         log.error("Login failure");
         response.setStatus(HttpStatus.BAD_REQUEST.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        new ObjectMapper().writeValue(response.getOutputStream(),new ErrorDTO("Incorrect Username and Password", HttpStatus.BAD_REQUEST.value(), new Date().toGMTString()));
+        new ObjectMapper().writeValue(response.getOutputStream(), new ErrorDTO("Incorrect Username and Password",
+                HttpStatus.BAD_REQUEST.value(), new Date().toGMTString()));
     }
 }

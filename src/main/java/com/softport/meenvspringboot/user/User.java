@@ -3,41 +3,40 @@ package com.softport.meenvspringboot.user;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "users",uniqueConstraints = @UniqueConstraint(columnNames = { "phoneNumber" }))
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+@Table(name = "users", uniqueConstraints = @UniqueConstraint(columnNames = { "phoneNumber" }))
 public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    //@Column(name = "user_id")
+    // @Column(name = "user_id")
     private long id;
 
     @Column
@@ -63,10 +62,8 @@ public class User implements UserDetails {
     @Column
     private long smsBalance = 0;
 
-
-
     @Column
-    private  long smsSent = 0;
+    private long smsSent = 0;
 
     @Column
     private Date createdAt = new Date();
