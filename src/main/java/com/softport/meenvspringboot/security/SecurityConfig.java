@@ -44,13 +44,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests().antMatchers("/user/resetpassword/verify/**").permitAll();
 
         http.authorizeRequests().antMatchers(HttpMethod.POST, "/groups").permitAll();
-        //http.authorizeRequests().antMatchers()
+        // http.authorizeRequests().antMatchers()
         http.authorizeRequests().antMatchers("/vmshare/**").permitAll();
-        //http.authorizeRequests().antMatchers(HttpMethod.POST, "/groups/**").hasAnyAuthority("ROLE_USER");
+        // http.authorizeRequests().antMatchers(HttpMethod.POST,
+        // "/groups/**").hasAnyAuthority("ROLE_USER");
         http.authorizeRequests().anyRequest().authenticated();
 
-        http.addFilter(new CustomAuthenticationFilter(this.authenticationManagerBean())) ;
-        http.addFilterBefore(new CustomAuthorizationFilter( userRepository ), UsernamePasswordAuthenticationFilter.class);
+        http.addFilter(new CustomAuthenticationFilter(this.authenticationManagerBean()));
+        http.addFilterBefore(new CustomAuthorizationFilter(userRepository), UsernamePasswordAuthenticationFilter.class);
     }
 
     @Bean
@@ -65,7 +66,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         auth.userDetailsService(this.userDetailsService).passwordEncoder(this.bCryptPasswordEncoder);
     }
 
-
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
@@ -75,14 +75,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         configuration.setAllowedHeaders(Arrays.asList("authorization", "content-type",
                 "x-auth-token"));
         configuration.setExposedHeaders(Arrays.asList("x-auth-token"));
-        UrlBasedCorsConfigurationSource source = new
-                UrlBasedCorsConfigurationSource();
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
 
         return source;
     }
-
-
-
 
 }
