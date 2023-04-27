@@ -42,6 +42,8 @@ public class UserController {
 
     private final UserRepository userRepository;
     private final UserService userService;
+    private final OTPService otpService;
+    private final PasswordEncoder passwordEncoder;
 
     @PostMapping("/usersignup")
     public ResponseEntity<User> signUp(
