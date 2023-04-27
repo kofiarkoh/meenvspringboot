@@ -54,8 +54,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         ObjectMapper mapper = new ObjectMapper();
         try {
             LoginDto loginDto = mapper.readValue(request.getInputStream(), LoginDto.class);
-            log.info("username is {} ", loginDto.getUsername());
-            log.info("password is {} ", loginDto.getPassword());
+
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                     loginDto.getUsername(), loginDto.getPassword());
             return this.authenticationManager.authenticate(authenticationToken);
