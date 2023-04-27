@@ -32,12 +32,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "phoneNumber" }))
+@Table(name = "users",uniqueConstraints = @UniqueConstraint(columnNames = { "phoneNumber" }))
 public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
+    //@Column(name = "user_id")
     private long id;
 
     @Column

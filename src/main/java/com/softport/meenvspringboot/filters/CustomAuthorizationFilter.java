@@ -3,6 +3,7 @@ package com.softport.meenvspringboot.filters;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.softport.meenvspringboot.dto.ErrorDTO;
@@ -32,16 +33,22 @@ import java.util.*;
 public class CustomAuthorizationFilter extends OncePerRequestFilter {
     private final UserRepository userRepository;
 
-    private List<String> ignoredRoutes = List.of("/login","/usersignup","/payment/hook");
+    private List<String> ignoredRoutes = List.of("/login","/usersignup","/payment/hook","/user/refresh_token",
+            "/user/resetpassword");
 
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        log.info("Authorization filter running");
-        System.out.println(request.getServletPath());
+
+        String reqPath = request.getServletPath();
 
         if(ignoredRoutes.contains(request.getServletPath())){
             log.info("mathc");
+            filterChain.doFilter(request,response);
+        }
+        else if (
+                reqPath.matches("/user/resetpassword/verify/.+")
+        ){
             filterChain.doFilter(request,response);
         }
         else {
@@ -67,6 +74,13 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
                     filterChain.doFilter(request,response);
+                }
+                catch (TokenExpiredException e) {
+                    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                    response.setStatus(401);
+                    new ObjectMapper().writeValue(response.getOutputStream(),
+                            new ErrorDTO(e.getMessage(), HttpStatus.UNAUTHORIZED.value(), new Date().toGMTString())
+                    );
                 }
                 catch (Exception e){
 

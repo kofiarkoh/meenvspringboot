@@ -3,6 +3,7 @@ package com.softport.meenvspringboot.topup;
 import com.softport.meenvspringboot.exceptions.AppException;
 import com.softport.meenvspringboot.repositories.UserRepository;
 import com.softport.meenvspringboot.services.AuthenticationService;
+import com.softport.meenvspringboot.user.MiscData;
 import com.softport.meenvspringboot.user.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,23 +28,41 @@ public class TopUpController {
     private final TopupRepository topupRepository;
     private final UserRepository userRepository;
 
+    private final TopUpService topUpService;
+
     /*
     * request topup end point
     * */
     @PostMapping("user/topup")
     public ResponseEntity<?> requestTopUp(@RequestBody TopUp topUp){
 
+        if (topUp.getSmsQuantity() < 50){
+            throw  new AppException("Minimum SMS quatity is 50",HttpStatus.BAD_REQUEST);
+        }
         //generate unique transaction ID and OTP
         Random random = new Random();
         topUp.setTransactionId(String.valueOf(random.nextLong(999999)));
         long otp = random.nextLong(99999);
+        Float amount = topUp.getSmsQuantity() * new MiscData().getPricePerSMS() ;
         topUp.setOtp(otp);
         topUp.setDate(new Date());
         topUp.setStatus("PENDING");
+        topUp.setAmount(amount);
         topUp.setUserId(AuthenticationService.getAuthenticatedUser().getId());
+        topupRepository.save(topUp);
+        // Process payment with Paystack.
+        MomoRequestDTO body = new MomoRequestDTO(
+                String.format("%.2f",amount),
+                "kofarkoh0@gmail.com",
+                "GHS",
+                new MomoDTO(topUp.getPhoneNumber(),topUp.getNetwork().toLowerCase()) ,
+                "s", topUp.getTransactionId()
+        );
+        InitTransactionResponse initTransactionResponse = PayStack.makePaymentReques(body);
 
-        return new ResponseEntity<>(topupRepository.save(topUp),HttpStatus.OK);
-
+        return new ResponseEntity<>(
+                initTransactionResponse.getData().getAuthorization_url()
+                ,HttpStatus.OK);
     }
 
     /*
@@ -59,35 +78,27 @@ public class TopUpController {
     /*
     * veirfy OTP code
     * */
-    @GetMapping ("topup/verify_otp/{otp}")
+    @GetMapping ("top_up/verify_otp/{otp}")
     public ResponseEntity<?> verifyTopOTP(@PathVariable long otp){
 
         TopUp topupData = topupRepository.findByOtp(otp).orElseThrow(()->new AppException("Invalid OTP",HttpStatus.NOT_FOUND));
+        // verify otp;
+        log.info("OTP RECIEVED IS {}",otp);
+        if ( topUpService.isOTPInValid(topupData)) {
+             throw  new AppException("Expired OTP", HttpStatus.BAD_REQUEST);
+        }
 
-        /*
-        * OTP is only valid for 5 mins
-        * check if OTP is valid before procressing payment with Paystack.
-        * */
-       Instant now = Instant.now();
-       Duration timeElapsed = Duration.between(topupData.getDate().toInstant(),now);
-       if (timeElapsed.toMinutes() > 5) {
-          throw  new AppException("Expired OTP",HttpStatus.BAD_REQUEST);
-       }
-       // Process payment with Paystack.
-
+        // Process payment with Paystack.
         MomoRequestDTO body = new MomoRequestDTO(
-                100,
+                "100",
                 "kofarkoh0@gmail.com",
                 "GHS",
                 new MomoDTO(topupData.getPhoneNumber(),topupData.getNetwork().toLowerCase()) ,
                 "s", topupData.getTransactionId()
-
         );
-
         InitTransactionResponse initTransactionResponse = PayStack.makePaymentReques(body);
-        System.out.println(initTransactionResponse);
-      //  if (initTransactionResponse.getData().get)
-       return new ResponseEntity<>("Processing payment",HttpStatus.OK);
+
+       return new ResponseEntity<>(initTransactionResponse.getData().getAuthorization_url(),HttpStatus.OK);
     }
 
     /*
@@ -101,32 +112,20 @@ public class TopUpController {
         return new ResponseEntity(res,HttpStatus.OK);
     }
 
+
+    @PostMapping("payment/hook")
+    public ResponseEntity<?> paymentWebhook(@RequestBody ChargeResult chargeResult){
+
+        log.info("webhoost {}",chargeResult);
+        topUpService.verifyPaymentWebhookResponse(chargeResult);
+        return new ResponseEntity<>("ok",HttpStatus.OK);
+
+    }
+
     /* DASHBOARD ADMINSTRATOR ROUTES */
     @GetMapping("users/topups")
     public ResponseEntity<?> fetchAllTopUps(){
         return new ResponseEntity<>(topupRepository.findAll(),HttpStatus.OK);
-    }
-
-    @PostMapping("payment/hook")
-    public ResponseEntity<?> paymentWebhook(@RequestBody ChargeResult response){
-        System.out.println(response);;
-        TopUp topUp = topupRepository.findByTransactionId(response.getData().getReference());
-        String status = response.getData().getStatus();
-        if (status.equals("success") && !topUp.getStatus().equals("SUCCESS")){
-
-            topUp.setStatus("SUCCESS");
-            // update customer's balance
-            User user =  userRepository.findById(topUp.getUserId()).get();
-            user.setSmsBalance(user.getSmsBalance() + topUp.getSmsQuantity());
-        }
-        else if(status.equals("failed") || status.equals("timeout")){
-            topUp.setStatus("FAILED");
-
-        }
-
-        topupRepository.save(topUp);
-        return new ResponseEntity<>(response,HttpStatus.OK);
-
     }
 
 
