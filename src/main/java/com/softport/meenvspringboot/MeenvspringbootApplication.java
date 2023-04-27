@@ -13,9 +13,8 @@ public class MeenvspringbootApplication {
 		SpringApplication.run(MeenvspringbootApplication.class, args);
 	}
 
-
 	@Bean
-	PasswordEncoder passwordEncoder(){
-		return  new BCryptPasswordEncoder();
+	BCryptPasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
 	}
 }
