@@ -1,10 +1,14 @@
+
+
+
+
 #spring.datasource.url=jdbc:postgres://dsfhdsfhs:qb2IdgMyXKYbDeA9L8kBI8okjN5ATFcq@dpg-ch4qab1jvhtg4tcjk5v0-a.oregon-postgres.render.com:5432/meenvspringboot?useSSL=false
-spring.datasource.url=jdbc:postgresql://dpg-ch4qab1jvhtg4tcjk5v0-a.oregon-postgres.render.com:5432/meenvspringboot
-spring.datasource.username=dsfhdsfhs
-spring.datasource.password=qb2IdgMyXKYbDeA9L8kBI8okjN5ATFcq
+spring.datasource.url=jdbc:postgresql://localhost:5432/meenvspringboot
+spring.datasource.username=postgres
+spring.datasource.password=msp1
 
 spring.jpa.properties.hibernate.dialect = org.hibernate.dialect.PostgreSQLDialect
 spring.datasource.driver-class-name=org.postgresql.Driver
 spring.jpa.hibernate.ddl-auto=update
 server.port=9000
-spring.jpa.properties.hibernate.globally_quoted_identifiers=true
+server.address=192.168.8.108
