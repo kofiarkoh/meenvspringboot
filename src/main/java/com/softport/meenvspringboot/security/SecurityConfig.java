@@ -34,21 +34,20 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable();
-        http.cors();
-        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-        http.authorizeRequests().antMatchers("/usersignup").permitAll();
-        http.authorizeRequests().antMatchers("/payment/hook").permitAll();
-        http.authorizeRequests().antMatchers("/user/refresh_token").permitAll();
-        http.authorizeRequests().antMatchers("/user/resetpassword").permitAll();
-        http.authorizeRequests().antMatchers("/user/resetpassword/verify/**").permitAll();
+        // Enable CORS and disable CSRF
+        http = http.cors().and().csrf().disable();
 
-        http.authorizeRequests().antMatchers(HttpMethod.POST, "/groups").permitAll();
-        // http.authorizeRequests().antMatchers()
-        http.authorizeRequests().antMatchers("/vmshare/**").permitAll();
-        // http.authorizeRequests().antMatchers(HttpMethod.POST,
-        // "/groups/**").hasAnyAuthority("ROLE_USER");
-        http.authorizeRequests().anyRequest().authenticated();
+        // Set session management to stateless
+        http = http
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and();
+
+        http.authorizeRequests()
+                .antMatchers("/auth/**").permitAll()
+                .antMatchers("/login").permitAll()
+                .antMatchers("/yes").permitAll()
+                .anyRequest().authenticated();
 
         http.addFilter(new CustomAuthenticationFilter(this.authenticationManagerBean()));
         http.addFilterBefore(new CustomAuthorizationFilter(userRepository), UsernamePasswordAuthenticationFilter.class);

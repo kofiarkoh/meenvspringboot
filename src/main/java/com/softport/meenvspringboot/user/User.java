@@ -68,6 +68,9 @@ public class User implements UserDetails {
     @Column
     private Date createdAt = new Date();
 
+    @Column
+    private Date emailVerifiedAt = new Date();
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return new ArrayList<>();
