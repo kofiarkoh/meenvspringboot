@@ -79,15 +79,9 @@ public class UserController {
                 user.getPhoneNumber(),
                 this.passwordEncoder.encode(data.getNewPassword()));
 
-        emailService.sendMail("lawrencearkoh6@gmail.com", "Password Reset", "Your token is");
-        // send OTP to user's phone number
-        /*
-         * UelloSend.sendCampaign(
-         * "Password reset OTP is " + otp.getCode(),
-         * "MEENV",
-         * List.of(user.getPhoneNumber())
-         * );
-         */
+        String message = String.format("Your password reset token is %s", otp.getCode());
+        emailService.sendMail("lawrencearkoh6@gmail.com", "MEENV: Password Reset", message);
+
         return new ResponseEntity<>(
                 "Please verify your phone number by confirming the OTP sent to you",
                 HttpStatus.OK);
