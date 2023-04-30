@@ -17,6 +17,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @Entity
 @Data
 @NoArgsConstructor
@@ -36,7 +40,6 @@ public class Groups {
     /* @ManyToOne(cascade = CascadeType.ALL) */
     @Column(name = "user_id")
     private long userId;
-
 
     @OneToMany(cascade = CascadeType.ALL)
     private Collection<@Valid Contacts> contacts;
