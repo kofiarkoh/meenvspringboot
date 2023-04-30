@@ -1,12 +1,31 @@
 package com.softport.meenvspringboot.user;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
@@ -17,20 +36,9 @@ import com.softport.meenvspringboot.OTP.OTP;
 import com.softport.meenvspringboot.OTP.OTPService;
 import com.softport.meenvspringboot.dto.ErrorDTO;
 import com.softport.meenvspringboot.exceptions.AppException;
-import com.softport.meenvspringboot.services.AuthenticationService;
-import com.softport.meenvspringboot.uellosend.UelloSend;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.*;
-
 import com.softport.meenvspringboot.repositories.UserRepository;
+import com.softport.meenvspringboot.services.AuthenticationService;
+import com.softport.meenvspringboot.services.EmailService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +52,7 @@ public class UserController {
     private final UserService userService;
     private final OTPService otpService;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
     @PostMapping("/usersignup")
     public ResponseEntity<User> signUp(
@@ -69,6 +78,8 @@ public class UserController {
         OTP otp = otpService.generate(
                 user.getPhoneNumber(),
                 this.passwordEncoder.encode(data.getNewPassword()));
+
+        emailService.sendMail("lawrencearkoh6@gmail.com", "Password Reset", "Your token is");
         // send OTP to user's phone number
         /*
          * UelloSend.sendCampaign(
