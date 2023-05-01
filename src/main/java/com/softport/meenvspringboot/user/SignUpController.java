@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.softport.meenvspringboot.OTP.OTP;
+import com.softport.meenvspringboot.OTP.OTPRepository;
 import com.softport.meenvspringboot.OTP.OTPService;
 import com.softport.meenvspringboot.dto.SendOTP;
 import com.softport.meenvspringboot.exceptions.AppException;
@@ -29,11 +30,12 @@ import lombok.RequiredArgsConstructor;
 public class SignUpController {
 
     private final OTPService otpService;
+    private final OTPRepository otpRepository;
     private final UserRepository userRepository;
     private final EmailService emailService;
     private final UserService userService;
 
-    @PostMapping("register")
+    @PostMapping("signup")
     public ResponseEntity<User> signUp(
             HttpServletResponse httpServletResponse,
             @RequestBody @Valid User user) throws IOException {
@@ -45,7 +47,8 @@ public class SignUpController {
 
         OTP otp = otpService.generate(
                 user.getPhoneNumber(),
-                user.getEmail());
+                user.getEmail(),
+                user);
 
         String message = String.format("Your email verification token is %s", otp.getCode());
         emailService.sendMail("lawrencearkoh6@gmail.com", "MEENV: Email Verification", message);
@@ -57,12 +60,21 @@ public class SignUpController {
     @PostMapping("signup/{otp}/verify")
     public ResponseEntity<?> verifyEmail(@PathVariable String otp) {
         OTP otpData = otpService.getOTP(otp);
+
+        if (otpData.isExpired()) {
+            throw new AppException(
+                    "The provided otp has expired.",
+                    HttpStatus.BAD_REQUEST);
+        }
+
         User user = userRepository.findByPhoneNumber(otpData.getFirstIdentifier());
 
         user.setEmailVerifiedAt(new Date());
         userRepository.save(user);
 
-        return new ResponseEntity<>("Verification successfull", HttpStatus.OK);
+        otpService.deleteOTP(otpData);
+
+        return new ResponseEntity<>("Email verification successfull", HttpStatus.OK);
 
     }
 
@@ -73,9 +85,11 @@ public class SignUpController {
         if (user == null) {
             throw new AppException("User not found", HttpStatus.NOT_FOUND);
         }
+
         OTP otp = otpService.generate(
                 user.getPhoneNumber(),
-                user.getEmail());
+                user.getEmail(),
+                user);
 
         String message = String.format("Your email verification token is %s",
                 otp.getCode());
