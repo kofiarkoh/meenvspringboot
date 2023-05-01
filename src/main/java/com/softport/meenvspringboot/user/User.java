@@ -15,6 +15,8 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.validation.Valid;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
@@ -55,10 +57,12 @@ public class User implements UserDetails {
 
     @Column
     @NotNull
+
     @Pattern(regexp = "\\d{10}", message = "Phone number must be 10 digits long")
     private String phoneNumber;
 
     @Column
+    @Email
     private String email;
 
     @Column
