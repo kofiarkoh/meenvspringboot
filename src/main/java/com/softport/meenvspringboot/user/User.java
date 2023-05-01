@@ -59,7 +59,7 @@ public class User implements UserDetails {
     private String phoneNumber;
 
     @Column
-    private String email = "";
+    private String email;
 
     @Column
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)

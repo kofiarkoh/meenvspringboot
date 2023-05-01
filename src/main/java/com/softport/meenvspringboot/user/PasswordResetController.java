@@ -45,7 +45,7 @@ public class PasswordResetController {
                 user);
 
         String message = String.format("Your password reset token is %s", otp.getCode());
-        emailService.sendMail("lawrencearkoh6@gmail.com", "MEENV: Password Reset", message);
+        emailService.sendMail(user.getEmail(), "MEENV: Password Reset", message);
 
         return new ResponseEntity<>(
                 "Please verify your email by confirming the OTP sent to you",

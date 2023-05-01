@@ -51,7 +51,7 @@ public class SignUpController {
                 user);
 
         String message = String.format("Your email verification token is %s", otp.getCode());
-        emailService.sendMail("lawrencearkoh6@gmail.com", "MEENV: Email Verification", message);
+        emailService.sendMail(user.getEmail(), "MEENV: Email Verification", message);
 
         return new ResponseEntity<>(user, HttpStatus.CREATED);
 
@@ -93,7 +93,7 @@ public class SignUpController {
 
         String message = String.format("Your email verification token is %s",
                 otp.getCode());
-        emailService.sendMail("lawrencearkoh6@gmail.com",
+        emailService.sendMail(user.getEmail(),
                 "MEENV: Email Verification", message);
 
         user.setEmailVerifiedAt(new Date());
