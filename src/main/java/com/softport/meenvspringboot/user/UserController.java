@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.softport.meenvspringboot.OTP.OTPService;
 import com.softport.meenvspringboot.exceptions.AppException;
 import com.softport.meenvspringboot.repositories.UserRepository;
+import com.softport.meenvspringboot.services.AuthenticationService;
 import com.softport.meenvspringboot.services.EmailService;
 
 import lombok.RequiredArgsConstructor;
@@ -59,6 +60,13 @@ public class UserController {
     @GetMapping("all")
     public ResponseEntity<?> getAllUsers() {
         return new ResponseEntity<>(userRepository.findAll(), HttpStatus.OK);
+    }
+
+    @GetMapping("user")
+    public ResponseEntity<User> getUser() {
+        return new ResponseEntity<User>(
+                userRepository.findById(AuthenticationService.getAuthenticatedUser().getId()).get(),
+                HttpStatus.CREATED);
     }
 
 }

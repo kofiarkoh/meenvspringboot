@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.softport.meenvspringboot.OTP.OTP;
 import com.softport.meenvspringboot.OTP.OTPService;
+import com.softport.meenvspringboot.dto.SendOTP;
 import com.softport.meenvspringboot.exceptions.AppException;
 import com.softport.meenvspringboot.repositories.UserRepository;
 import com.softport.meenvspringboot.services.AuthenticationService;
@@ -40,36 +41,38 @@ public class PasswordResetController {
         }
         OTP otp = otpService.generate(
                 user.getPhoneNumber(),
-                this.passwordEncoder.encode(data.getNewPassword()));
+                this.passwordEncoder.encode(data.getNewPassword()),
+                user);
 
         String message = String.format("Your password reset token is %s", otp.getCode());
         emailService.sendMail("lawrencearkoh6@gmail.com", "MEENV: Password Reset", message);
 
         return new ResponseEntity<>(
-                "Please verify your phone number by confirming the OTP sent to you",
+                "Please verify your email by confirming the OTP sent to you",
                 HttpStatus.OK);
     }
 
-    @GetMapping("reset-password/{otp}/verify")
+    @PostMapping("reset-password/{otp}/verify")
     public ResponseEntity<?> verifiIdentity(@PathVariable String otp) {
         OTP otpData = otpService.getOTP(otp);
+        if (otpData.isExpired()) {
+            throw new AppException(
+                    "The provided otp has expired.",
+                    HttpStatus.BAD_REQUEST);
+        }
+
         User user = userRepository.findByPhoneNumber(otpData.getFirstIdentifier());
 
         // update password
         user.setPassword(otpData.getSecondIdentifier());
         userRepository.save(user);
 
+        otpService.deleteOTP(otpData);
+
         return new ResponseEntity<>(
                 "Password reset successful.",
                 HttpStatus.OK);
 
-    }
-
-    @GetMapping("user")
-    public ResponseEntity<User> getUser() {
-        return new ResponseEntity<User>(
-                userRepository.findById(AuthenticationService.getAuthenticatedUser().getId()).get(),
-                HttpStatus.CREATED);
     }
 
 }
