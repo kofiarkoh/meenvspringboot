@@ -35,9 +35,9 @@ public class PasswordResetController {
     @PostMapping("reset-password")
     public ResponseEntity<?> resetPassword(@RequestBody PasswordResetDTO data) {
 
-        User user = userRepository.findByPhoneNumber(data.getPhoneNumber());
+        User user = userRepository.findByEmail(data.getEmail());
         if (user == null) {
-            throw new AppException("No account found for the phone number provided", HttpStatus.NOT_FOUND);
+            throw new AppException("No account found for the email provided", HttpStatus.NOT_FOUND);
         }
         OTP otp = otpService.generate(
                 user.getPhoneNumber(),
