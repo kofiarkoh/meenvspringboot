@@ -16,13 +16,14 @@ import java.util.ArrayList;
 @Transactional
 public class CustomerUserDetailsService implements UserDetailsService {
     private final UserRepository userRepository;
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        User user = this.userRepository.findByPhoneNumber(username);
-        if (user == null){
-            throw  new UsernameNotFoundException("User not found");
+        User user = this.userRepository.findByEmail(username);
+        if (user == null) {
+            throw new UsernameNotFoundException("User not found");
         }
-      return  user;
+        return user;
     }
 }
