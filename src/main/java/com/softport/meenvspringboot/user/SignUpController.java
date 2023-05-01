@@ -39,6 +39,9 @@ public class SignUpController {
     public ResponseEntity<User> signUp(
             HttpServletResponse httpServletResponse,
             @RequestBody @Valid User user) throws IOException {
+        if (userRepository.existsByEmail(user.getEmail())) {
+            throw new AppException("Email taken by another user", HttpStatus.BAD_REQUEST);
+        }
         if (userRepository.existsByPhoneNumber(user.getPhoneNumber())) {
             throw new AppException("Phone Number taken by another user", HttpStatus.BAD_REQUEST);
         }
