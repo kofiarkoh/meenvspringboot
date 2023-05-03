@@ -33,7 +33,7 @@ public class Groups {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
-    private long id;
+    private Long id;
 
     @Column(name = "name")
     @Length(min = 3, message = "Group name must be at least 3 characters")

@@ -43,7 +43,7 @@ public class GroupController {
         User user = (User) authentication.getDetails();
         group.setUserId(user.getId());
         group = groupRepository.save(group);
-        return new ResponseEntity<>(group, HttpStatus.CREATED);
+        return new ResponseEntity<>(new Group(group.getId(), group.getName(), 0L), HttpStatus.CREATED);
     }
 
     @GetMapping("/groups")
