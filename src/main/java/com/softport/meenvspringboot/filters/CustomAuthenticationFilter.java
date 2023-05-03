@@ -108,7 +108,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         log.error("Login failure");
         response.setStatus(HttpStatus.BAD_REQUEST.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        new ObjectMapper().writeValue(response.getOutputStream(), new ErrorDTO("Incorrect Username and Password",
+        new ObjectMapper().writeValue(response.getOutputStream(), new ErrorDTO("Invalid credentials",
                 HttpStatus.BAD_REQUEST.value(), new Date().toGMTString()));
     }
 }
