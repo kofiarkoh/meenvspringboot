@@ -4,6 +4,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.validation.constraints.Pattern;
 import org.hibernate.validator.constraints.Length;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
@@ -28,5 +30,9 @@ public class Contacts {
 
     @Pattern(regexp = "\\d{10}", message = "Phone number must be 10 digits long")
     private String phoneNumber;
+
+    @ManyToOne
+    @JoinColumn(name = "group_id", nullable = false)
+    private Groups group;
 
 }

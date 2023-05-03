@@ -1,5 +1,6 @@
 package com.softport.meenvspringboot.group;
 
+import com.softport.meenvspringboot.dto.Group;
 import com.softport.meenvspringboot.exceptions.AppException;
 import com.softport.meenvspringboot.services.AuthenticationService;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +19,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.w3c.dom.stylesheets.LinkStyle;
 
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
 import javax.validation.Valid;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -29,6 +34,7 @@ public class GroupController {
 
     private final GroupRepository groupRepository;
     private final UserRepository userRepository;
+    private final EntityManager entityManager;
 
     @PostMapping(value = "/groups")
     public ResponseEntity<?> creatUserGroup(@Valid @RequestBody Groups group) {
@@ -43,8 +49,15 @@ public class GroupController {
     @GetMapping("/groups")
     public ResponseEntity<?> getUserGroups() {
 
-        List<Groups> groups = groupRepository.findAllByUserId(AuthenticationService.getAuthenticatedUser().getId());
-        return new ResponseEntity<>(groups, HttpStatus.CREATED);
+        User user = AuthenticationService.getAuthenticatedUser();
+        String jpqlQuery = "SELECT new com.softport.meenvspringboot.dto.Group(g.id, g.name, COUNT(m)) FROM com.softport.meenvspringboot.group.Groups g LEFT JOIN g.contacts m WHERE g.userId = :userId GROUP BY g.id ORDER BY g.id";
+
+        TypedQuery<Group> query = entityManager.createQuery(jpqlQuery, Group.class);
+
+        query.setParameter("userId", user.getId());
+        List<Group> results = query.getResultList();
+
+        return new ResponseEntity<>(results, HttpStatus.CREATED);
     }
 
     @PostMapping(value = "groups/contacts")
@@ -60,15 +73,13 @@ public class GroupController {
         return new ResponseEntity<>(group, HttpStatus.CREATED);
     }
 
-
     @DeleteMapping(value = "groups/{groupId}")
     public ResponseEntity<?> deleteGroup(@PathVariable Long groupId) {
-        if (groupRepository.existsById(groupId)){
+        if (groupRepository.existsById(groupId)) {
             groupRepository.deleteById(groupId);
             return new ResponseEntity<>("Group deleted succesfully", HttpStatus.OK);
-        }
-        else{
-            throw new AppException("Group not found",HttpStatus.NOT_FOUND);
+        } else {
+            throw new AppException("Group not found", HttpStatus.NOT_FOUND);
         }
 
     }
