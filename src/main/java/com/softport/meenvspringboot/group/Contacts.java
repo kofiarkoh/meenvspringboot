@@ -1,6 +1,7 @@
 package com.softport.meenvspringboot.group;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -31,7 +32,7 @@ public class Contacts {
     @Pattern(regexp = "\\d{10}", message = "Phone number must be 10 digits long")
     private String phoneNumber;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "group_id", nullable = false)
     private Groups group;
 

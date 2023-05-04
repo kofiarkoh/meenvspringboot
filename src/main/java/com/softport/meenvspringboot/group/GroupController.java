@@ -1,5 +1,6 @@
 package com.softport.meenvspringboot.group;
 
+import com.softport.meenvspringboot.dto.Contact;
 import com.softport.meenvspringboot.dto.Group;
 import com.softport.meenvspringboot.exceptions.AppException;
 import com.softport.meenvspringboot.services.AuthenticationService;
@@ -25,6 +26,7 @@ import javax.validation.Valid;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -71,6 +73,21 @@ public class GroupController {
         group.setUserId(user.getId());
         groupRepository.save(group);
         return new ResponseEntity<>(group, HttpStatus.CREATED);
+    }
+
+    @GetMapping(value = "groups/{groupId}")
+    public ResponseEntity<?> getGroup(@PathVariable Long groupId) {
+
+        Optional<Groups> groups = groupRepository.findById(groupId);
+        if (groups.isEmpty()) {
+            throw new AppException("Group not found", HttpStatus.NOT_FOUND);
+        }
+        Group group = new Group(groupId, groups.get().getName(), (long) groups.get().getContacts().size());
+
+        groups.get().getContacts().stream().forEach(contact -> {
+            group.getContactList().add(new Contact(contact.getName(), contact.getPhoneNumber()));
+        });
+        return new ResponseEntity<>(group, HttpStatus.OK);
     }
 
     @DeleteMapping(value = "groups/{groupId}")
