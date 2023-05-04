@@ -9,20 +9,25 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 @RequiredArgsConstructor
 @RestController
+@RequestMapping("templates")
 public class TemplateController {
 
     private final TemplateRepository templateRepository;
 
-    @PostMapping("templates")
-    public ResponseEntity<Template> addTemplate(@RequestBody Template template){
+    @PostMapping()
+    public ResponseEntity<Template> addTemplate(@RequestBody @Valid Template template) {
         template.setUserId(AuthenticationService.getAuthenticatedUser().getId());
-        return new ResponseEntity<>( templateRepository.save(template), HttpStatus.CREATED);
+        return new ResponseEntity<>(templateRepository.save(template), HttpStatus.CREATED);
     }
 
-    @GetMapping("templates")
-    public ResponseEntity<List<Template>> getUserTemplates(){
-        return new ResponseEntity<>(templateRepository.findTemplateByUserId(AuthenticationService.getAuthenticatedUser().getId()),HttpStatus.OK);
+    @GetMapping()
+    public ResponseEntity<List<Template>> getUserTemplates() {
+        return new ResponseEntity<>(
+                templateRepository.findTemplateByUserId(AuthenticationService.getAuthenticatedUser().getId()),
+                HttpStatus.OK);
     }
 }
