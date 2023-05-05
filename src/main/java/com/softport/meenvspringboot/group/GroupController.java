@@ -37,8 +37,6 @@ import lombok.extern.slf4j.Slf4j;
 public class GroupController {
 
     private final GroupRepository groupRepository;
-    private final UserRepository userRepository;
-    private final ContactRepository contactRepository;
     private final ContactService contactService;
     private final EntityManager entityManager;
 
