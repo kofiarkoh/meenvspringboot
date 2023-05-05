@@ -20,9 +20,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.softport.meenvspringboot.exceptions.AppException;
-import com.softport.meenvspringboot.repositories.ContactRepository;
 import com.softport.meenvspringboot.repositories.GroupRepository;
-import com.softport.meenvspringboot.repositories.UserRepository;
 import com.softport.meenvspringboot.services.AuthenticationService;
 import com.softport.meenvspringboot.services.ContactService;
 import com.softport.meenvspringboot.user.User;
@@ -65,7 +63,7 @@ public class GroupController {
     }
 
     @PostMapping(value = "groups/{groupId}/contacts")
-    public ResponseEntity<?> updateGroup(@PathVariable Long groupId, @Valid @RequestBody Contacts data) {
+    public ResponseEntity<?> updateGroup(@PathVariable Long groupId, @Valid @RequestBody Contact data) {
         return new ResponseEntity<>(contactService.addContact(groupId, data), HttpStatus.CREATED);
     }
 

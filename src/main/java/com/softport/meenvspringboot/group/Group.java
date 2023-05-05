@@ -45,7 +45,7 @@ public class Group {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "group")
     @JsonManagedReference
-    private List<Contacts> contacts = new ArrayList<>();
+    private List<Contact> contacts = new ArrayList<>();
 
     @Transient
     private long contactsCount;

@@ -26,7 +26,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class Contacts {
+public class Contact {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
