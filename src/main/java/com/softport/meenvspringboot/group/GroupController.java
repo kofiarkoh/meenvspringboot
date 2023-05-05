@@ -20,6 +20,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.databind.ser.FilterProvider;
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.softport.meenvspringboot.exceptions.AppException;
 import com.softport.meenvspringboot.repositories.GroupRepository;
 import com.softport.meenvspringboot.repositories.UserRepository;
@@ -59,7 +62,11 @@ public class GroupController {
         query.setParameter("userId", user.getId());
         List<Group> results = query.getResultList(); */
         log.info("user id " + user.getId());
-        return new ResponseEntity<>(groupRepository.findAllByUserId(user.getId()), HttpStatus.OK);
+        SimpleBeanPropertyFilter simpleBeanPropertyFilter = SimpleBeanPropertyFilter.serializeAllExcept("contacts");
+        FilterProvider filterProvider = new SimpleFilterProvider().addFilter("tf", simpleBeanPropertyFilter);
+
+        List<?> g = groupRepository.findAllkio();
+        return new ResponseEntity<>(g, HttpStatus.OK);
     }
 
     @PostMapping(value = "groups/{groupId}/contacts")

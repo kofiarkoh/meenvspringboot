@@ -51,7 +51,7 @@ public class Group {
     private long userId; */
 
     @JsonIgnore
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "group")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "group", fetch = FetchType.LAZY)
     @JsonManagedReference
     private List<Contact> contacts = new ArrayList<>();
 
@@ -59,9 +59,14 @@ public class Group {
     @JoinColumn(name = "user_id", nullable = false)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @JsonBackReference
+
     private User user;
 
     @Transient
-    private long contactsCount;
+    private long contactsCount = 0;
+
+    public long getContactsCount() {
+        return contacts.size();
+    }
 
 }
