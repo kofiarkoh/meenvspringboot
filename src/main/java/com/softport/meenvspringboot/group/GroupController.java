@@ -95,4 +95,11 @@ public class GroupController {
 
     }
 
+    @DeleteMapping(value = "/groups/{groupId}/contacts/{contactId}")
+    public ResponseEntity<?> deleteContact(@PathVariable Long groupId, @PathVariable Long contactId) {
+        contactService.deleteContact(contactId);
+        return new ResponseEntity<>("Contact deleted succesfully", HttpStatus.OK);
+
+    }
+
 }

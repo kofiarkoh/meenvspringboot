@@ -39,6 +39,13 @@ public class ContactService {
         return data;
     }
 
+    public void deleteContact(Long id) {
+        if (!contactRepository.existsById(id)) {
+            throw new AppException("Contact not found", HttpStatus.NOT_FOUND);
+        }
+        contactRepository.deleteById(id);
+    }
+
     @Transactional
     public Group createGroup(Group group) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
