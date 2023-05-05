@@ -1,7 +1,7 @@
 package com.softport.meenvspringboot.services;
 
 import com.softport.meenvspringboot.dto.SendMessageDTO;
-import com.softport.meenvspringboot.group.Contacts;
+import com.softport.meenvspringboot.group.Contact;
 import com.softport.meenvspringboot.messages.Message;
 import com.softport.meenvspringboot.repositories.MessageRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,8 +12,9 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 
-@Service @RequiredArgsConstructor
-public class MessageServiceImpl implements MessageService{
+@Service
+@RequiredArgsConstructor
+public class MessageServiceImpl implements MessageService {
     private final MessageRepository messageRepository;
 
     @Override
@@ -22,9 +23,9 @@ public class MessageServiceImpl implements MessageService{
     }
 
     @Override
-    public void saveMessage(Long userId ,Collection<Contacts> recipients, SendMessageDTO sendMessageDTO) {
-        String messageId = String.format("%06d",new Random().nextInt(999999));
-        List<Message> messageList = recipients.stream().map(recipient->{
+    public void saveMessage(Long userId, Collection<Contact> recipients, SendMessageDTO sendMessageDTO) {
+        String messageId = String.format("%06d", new Random().nextInt(999999));
+        List<Message> messageList = recipients.stream().map(recipient -> {
             Message message = new Message();
             message.setMessage(sendMessageDTO.getMessage());
             message.setRecipient(recipient.getPhoneNumber());
@@ -34,10 +35,9 @@ public class MessageServiceImpl implements MessageService{
             message.setUserId(userId);
             message.setRecipientCount(recipients.size());
             message.setMessageId(messageId);
-            return  message;
+            return message;
         }).collect(Collectors.toList());
         messageRepository.saveAll(messageList);
     }
-
 
 }
