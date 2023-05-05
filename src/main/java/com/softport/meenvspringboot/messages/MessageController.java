@@ -2,7 +2,7 @@ package com.softport.meenvspringboot.messages;
 
 import com.softport.meenvspringboot.dto.SendMessageDTO;
 import com.softport.meenvspringboot.exceptions.AppException;
-import com.softport.meenvspringboot.group.Groups;
+import com.softport.meenvspringboot.group.Group;
 import com.softport.meenvspringboot.repositories.UserRepository;
 import com.softport.meenvspringboot.uellosend.UelloSend;
 import com.softport.meenvspringboot.user.User;
@@ -43,21 +43,19 @@ public class MessageController {
         User user = AuthenticationService.getAuthenticatedUser();
         long recipientCount = 0;
         if (sendMessageDTO.isToGroup()) {
-            Groups group = groupRepository.findById(sendMessageDTO.getGroupId()).orElseThrow(() -> new AppException("Group not found", HttpStatus.NOT_FOUND));
+            Group group = groupRepository.findById(sendMessageDTO.getGroupId())
+                    .orElseThrow(() -> new AppException("Group not found", HttpStatus.NOT_FOUND));
 
             this.messageService.saveMessage(user.getId(), group.getContacts(), sendMessageDTO);
 
-
-           recipientCount = group.getContacts().size();
-           if (user.getSmsBalance() < recipientCount){
-               throw new AppException(
-                       "Insufficient SMS balance", HttpStatus.BAD_REQUEST
-               );
-           }
+            recipientCount = group.getContacts().size();
+            if (user.getSmsBalance() < recipientCount) {
+                throw new AppException(
+                        "Insufficient SMS balance", HttpStatus.BAD_REQUEST);
+            }
             UelloSend.sendCampaign(sendMessageDTO.getMessage(),
                     sendMessageDTO.getSenderId(),
                     group.getContacts().stream().map(c -> c.getPhoneNumber()).collect(Collectors.toList()));
-
 
         } else {
 
@@ -75,35 +73,33 @@ public class MessageController {
             // save individual message to database.
             this.messageService.saveMessage(user.getId(), sendMessageDTO.getRecipients(), sendMessageDTO);
             recipientCount = sendMessageDTO.getRecipients().size();
-            if (user.getSmsBalance() < recipientCount){
+            if (user.getSmsBalance() < recipientCount) {
                 throw new AppException(
-                        "Insufficient SMS balance", HttpStatus.BAD_REQUEST
-                );
+                        "Insufficient SMS balance", HttpStatus.BAD_REQUEST);
             }
             UelloSend.sendCampaign(sendMessageDTO.getMessage(),
                     sendMessageDTO.getSenderId(),
-                    sendMessageDTO.getRecipients().stream().map(c->c.getPhoneNumber()).collect(Collectors.toList()));
+                    sendMessageDTO.getRecipients().stream().map(c -> c.getPhoneNumber()).collect(Collectors.toList()));
 
         }
 
         //  update user balance
-        user.setSmsBalance(user.getSmsBalance()-recipientCount);
-        user.setSmsSent(user.getSmsSent()+recipientCount);
+        user.setSmsBalance(user.getSmsBalance() - recipientCount);
+        user.setSmsSent(user.getSmsSent() + recipientCount);
         userRepository.save(user);
         return new ResponseEntity<>("Message recieved for delivery.", HttpStatus.OK);
     }
-
 
     /*
     * FOLLOWING END POINTS ARE FOR ADMIN DASHBOARD ONLY
     * */
     @GetMapping("/user/{userId}")
-    public ResponseEntity<?> getMessageByUserId(@PathVariable("userId") long userId){
+    public ResponseEntity<?> getMessageByUserId(@PathVariable("userId") long userId) {
         return new ResponseEntity<>(messageService.getMessageByUserId(userId), HttpStatus.OK);
     }
 
     @GetMapping("/all")
-    public ResponseEntity<?> getAllMessages(){
+    public ResponseEntity<?> getAllMessages() {
         return new ResponseEntity<>(messageRepository.getMessageByAllUsers(), HttpStatus.OK);
     }
 

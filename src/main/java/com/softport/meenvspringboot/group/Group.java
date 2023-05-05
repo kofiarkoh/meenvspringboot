@@ -29,7 +29,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table
-public class Groups {
+public class Group {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

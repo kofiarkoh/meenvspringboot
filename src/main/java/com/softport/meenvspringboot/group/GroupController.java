@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.softport.meenvspringboot.dto.Group;
 import com.softport.meenvspringboot.exceptions.AppException;
 import com.softport.meenvspringboot.repositories.ContactRepository;
 import com.softport.meenvspringboot.repositories.GroupRepository;
@@ -44,13 +43,13 @@ public class GroupController {
     private final EntityManager entityManager;
 
     @PostMapping(value = "/groups")
-    public ResponseEntity<?> creatUserGroup(@Valid @RequestBody Groups group) {
+    public ResponseEntity<?> creatUserGroup(@Valid @RequestBody Group group) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getDetails();
         group.setUserId(user.getId());
         group = groupRepository.save(group);
-        return new ResponseEntity<>(new Group(group.getId(), group.getName(), 0L), HttpStatus.CREATED);
+        return new ResponseEntity<>(group, HttpStatus.CREATED);
     }
 
     @GetMapping("/groups")
@@ -75,7 +74,7 @@ public class GroupController {
     @GetMapping(value = "groups/{groupId}")
     public ResponseEntity<?> getGroup(@PathVariable Long groupId) {
 
-        Optional<Groups> groups = groupRepository.findById(groupId);
+        Optional<Group> groups = groupRepository.findById(groupId);
         if (groups.isEmpty()) {
             throw new AppException("Group not found", HttpStatus.NOT_FOUND);
         }
