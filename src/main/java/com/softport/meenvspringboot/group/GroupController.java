@@ -1,32 +1,35 @@
 package com.softport.meenvspringboot.group;
 
-import com.softport.meenvspringboot.dto.Contact;
-import com.softport.meenvspringboot.dto.Group;
-import com.softport.meenvspringboot.exceptions.AppException;
-import com.softport.meenvspringboot.services.AuthenticationService;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
-
-import com.softport.meenvspringboot.user.User;
-import com.softport.meenvspringboot.repositories.GroupRepository;
-import com.softport.meenvspringboot.repositories.UserRepository;
-
-import lombok.RequiredArgsConstructor;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.w3c.dom.stylesheets.LinkStyle;
+import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.validation.Valid;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.softport.meenvspringboot.dto.Group;
+import com.softport.meenvspringboot.exceptions.AppException;
+import com.softport.meenvspringboot.repositories.ContactRepository;
+import com.softport.meenvspringboot.repositories.GroupRepository;
+import com.softport.meenvspringboot.repositories.UserRepository;
+import com.softport.meenvspringboot.services.AuthenticationService;
+import com.softport.meenvspringboot.services.ContactService;
+import com.softport.meenvspringboot.user.User;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequiredArgsConstructor
@@ -36,6 +39,8 @@ public class GroupController {
 
     private final GroupRepository groupRepository;
     private final UserRepository userRepository;
+    private final ContactRepository contactRepository;
+    private final ContactService contactService;
     private final EntityManager entityManager;
 
     @PostMapping(value = "/groups")
@@ -62,17 +67,9 @@ public class GroupController {
         return new ResponseEntity<>(results, HttpStatus.CREATED);
     }
 
-    @PostMapping(value = "groups/contacts")
-    public ResponseEntity<Groups> updateGroup(@Valid @RequestBody Groups group) {
-        /*
-        * add user id to group to cater for instances when user_id isn't part
-        * of request body.
-        * */
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) authentication.getDetails();
-        group.setUserId(user.getId());
-        groupRepository.save(group);
-        return new ResponseEntity<>(group, HttpStatus.CREATED);
+    @PostMapping(value = "groups/{groupId}/contacts")
+    public ResponseEntity<?> updateGroup(@PathVariable Long groupId, @Valid @RequestBody Contacts data) {
+        return new ResponseEntity<>(contactService.addContact(groupId, data), HttpStatus.CREATED);
     }
 
     @GetMapping(value = "groups/{groupId}")
@@ -82,12 +79,7 @@ public class GroupController {
         if (groups.isEmpty()) {
             throw new AppException("Group not found", HttpStatus.NOT_FOUND);
         }
-        Group group = new Group(groupId, groups.get().getName(), (long) groups.get().getContacts().size());
-
-        groups.get().getContacts().stream().forEach(contact -> {
-            group.getContactList().add(new Contact(contact.getName(), contact.getPhoneNumber()));
-        });
-        return new ResponseEntity<>(group, HttpStatus.OK);
+        return new ResponseEntity<>(groups.get(), HttpStatus.OK);
     }
 
     @DeleteMapping(value = "groups/{groupId}")
