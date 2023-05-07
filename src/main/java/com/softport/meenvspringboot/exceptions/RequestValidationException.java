@@ -4,6 +4,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.softport.meenvspringboot.dto.ErrorDTO;
 
 import java.util.*;
@@ -52,12 +53,26 @@ public class RequestValidationException extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
             HttpHeaders headers, HttpStatus status, WebRequest request) {
 
-        ErrorDTO errorDTO = new ErrorDTO();
-        errorDTO.setMessage(ex.getMessage());
-        errorDTO.setStatus(HttpStatus.BAD_REQUEST.value());
-        errorDTO.setDate(new Date().toGMTString());
+        Map<String, Object> responseBody = new HashMap<>();
+        responseBody.put("message", "Request body could not be parsed");
 
-        return new ResponseEntity<>(errorDTO, null, HttpStatus.BAD_REQUEST);
+        Map<String, String> errors = new HashMap<>();
+        Throwable cause = ex.getCause();
+        if (cause instanceof InvalidFormatException) {
+            InvalidFormatException invalidFormatException = (InvalidFormatException) cause;
+            String fieldName = invalidFormatException.getPath().get(0).getFieldName();
+            String expectedType = invalidFormatException.getTargetType().getSimpleName();
+            String actualValue = invalidFormatException.getValue().toString();
+            String error = String.format("Cannot parse '%s' as %s", actualValue, expectedType);
+            errors.put(fieldName, error);
+        } else {
+            errors.put("message", ex.getMessage());
+        }
+
+        responseBody.put("errors", errors);
+
+        return new ResponseEntity<>(responseBody, HttpStatus.BAD_REQUEST);
+
     }
 
     @ExceptionHandler(AppException.class)
