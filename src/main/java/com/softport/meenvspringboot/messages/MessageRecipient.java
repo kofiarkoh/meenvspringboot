@@ -9,6 +9,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -35,6 +37,8 @@ public class MessageRecipient {
     private String name;
 
     @Column
+    @Pattern(regexp = "\\d{10}", message = "Phone number must be 10 digits long")
+    @NotBlank
     private String phoneNumber;
 
     @ManyToOne(fetch = FetchType.LAZY)
