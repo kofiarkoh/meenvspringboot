@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.List;
 
 public interface MessageService {
-    List<Message> getMessageByUserId(Long userId);
+    List<?> getMessageByUserId(Long userId);
 
     void saveMessage(Long userId, Collection<Contact> recipients, SendOneTimeMessageDTO sendMessageDTO);
 }

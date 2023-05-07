@@ -34,6 +34,7 @@ public class MessageController {
     private final MessageRecipientRepository messageRecipientRepository;
 
     @GetMapping
+
     public ResponseEntity<?> getUserMessages() {
         User user = AuthenticationService.getAuthenticatedUser();
 
@@ -52,6 +53,7 @@ public class MessageController {
         Message message = new Message();
         message.setMessage(data.getMessage());
         message.setSenderId(data.getSenderId());
+        message.setUserId(user.getId());
         data.getRecipients().forEach(recipient -> recipient.setMessage(message));
         messageRepository.save(message);
         messageRecipientRepository.saveAll(data.getRecipients());

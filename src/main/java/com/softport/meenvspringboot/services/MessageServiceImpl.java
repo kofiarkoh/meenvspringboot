@@ -6,6 +6,7 @@ import com.softport.meenvspringboot.messages.Message;
 import com.softport.meenvspringboot.repositories.MessageRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.List;
@@ -18,7 +19,8 @@ public class MessageServiceImpl implements MessageService {
     private final MessageRepository messageRepository;
 
     @Override
-    public List<Message> getMessageByUserId(Long userId) {
+    @Transactional
+    public List<?> getMessageByUserId(Long userId) {
         return this.messageRepository.getMessageByUserId(userId);
     }
 
