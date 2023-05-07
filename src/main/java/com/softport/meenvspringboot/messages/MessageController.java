@@ -1,6 +1,6 @@
 package com.softport.meenvspringboot.messages;
 
-import com.softport.meenvspringboot.dto.SendMessageDTO;
+import com.softport.meenvspringboot.dto.SendOneTimeMessageDTO;
 import com.softport.meenvspringboot.exceptions.AppException;
 import com.softport.meenvspringboot.group.Group;
 import com.softport.meenvspringboot.repositories.UserRepository;
@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.stream.Collectors;
 
+import javax.validation.Valid;
+
 @RestController
 @Slf4j
 @RequestMapping(path = "/messages")
@@ -29,6 +31,7 @@ public class MessageController {
 
     private final MessageService messageService;
     private final UserRepository userRepository;
+    private final MessageRecipientRepository messageRecipientRepository;
 
     @GetMapping
     public ResponseEntity<?> getUserMessages() {
@@ -37,57 +40,66 @@ public class MessageController {
         return new ResponseEntity<>(messageService.getMessageByUserId(user.getId()), HttpStatus.OK);
     }
 
-    @PostMapping
-    public ResponseEntity<?> storeMessage(@RequestBody SendMessageDTO sendMessageDTO) {
+    @PostMapping("one-time")
+    public ResponseEntity<?> storeMessage(@RequestBody @Valid SendOneTimeMessageDTO data) {
 
         User user = AuthenticationService.getAuthenticatedUser();
         long recipientCount = 0;
-        if (sendMessageDTO.isToGroup()) {
+
+        Message message = new Message();
+        message.setMessage(data.getMessage());
+        message.setSenderId(data.getSenderId());
+        data.getRecipients().forEach(recipient -> recipient.setMessage(message));
+        messageRepository.save(message);
+        messageRecipientRepository.saveAll(data.getRecipients());
+        return new ResponseEntity<>(data, HttpStatus.OK);
+        /*  if (sendMessageDTO.isToGroup()) {
             Group group = groupRepository.findById(sendMessageDTO.getGroupId())
                     .orElseThrow(() -> new AppException("Group not found", HttpStatus.NOT_FOUND));
-
+        
             this.messageService.saveMessage(user.getId(), group.getContacts(), sendMessageDTO);
-
+        
             recipientCount = group.getContacts().size();
             if (user.getSmsBalance() < recipientCount) {
                 throw new AppException(
                         "Insufficient SMS balance", HttpStatus.BAD_REQUEST);
-            }
-            UelloSend.sendCampaign(sendMessageDTO.getMessage(),
-                    sendMessageDTO.getSenderId(),
-                    group.getContacts().stream().map(c -> c.getPhoneNumber()).collect(Collectors.toList()));
+            } */
+        /*  UelloSend.sendCampaign(sendMessageDTO.getMessage(),
+                sendMessageDTO.getSenderId(),
+                group.getContacts().stream().map(c -> c.getPhoneNumber()).collect(Collectors.toList()));
+        */
+        // } else {
 
-        } else {
-
-            // handle one-time recipients;
-            // validate phone numbers if messages is not sent to a group;
-            if ((sendMessageDTO.getRecipients() == null) || sendMessageDTO.getRecipients().isEmpty()) {
-                throw new AppException("Message recipients not found ", HttpStatus.BAD_REQUEST);
-            }
-
-            // recipients is guaranteed not to be empty so check for 10 digit phone number
-            if (!sendMessageDTO.getRecipients().stream().allMatch(r -> r.getPhoneNumber().length() == 10)) {
-                throw new AppException("Recipient phone number must be 10 digits.", HttpStatus.BAD_REQUEST);
-            }
-
-            // save individual message to database.
-            this.messageService.saveMessage(user.getId(), sendMessageDTO.getRecipients(), sendMessageDTO);
-            recipientCount = sendMessageDTO.getRecipients().size();
-            if (user.getSmsBalance() < recipientCount) {
-                throw new AppException(
-                        "Insufficient SMS balance", HttpStatus.BAD_REQUEST);
-            }
-            UelloSend.sendCampaign(sendMessageDTO.getMessage(),
-                    sendMessageDTO.getSenderId(),
-                    sendMessageDTO.getRecipients().stream().map(c -> c.getPhoneNumber()).collect(Collectors.toList()));
-
+        // handle one-time recipients;
+        // validate phone numbers if messages is not sent to a group;
+        /*  if ((sendMessageDTO.getRecipients() == null) || sendMessageDTO.getRecipients().isEmpty()) {
+            throw new AppException("Message recipients not found ", HttpStatus.BAD_REQUEST);
         }
+        
+        // recipients is guaranteed not to be empty so check for 10 digit phone number
+        if (!sendMessageDTO.getRecipients().stream().allMatch(r -> r.getPhoneNumber().length() == 10)) {
+            throw new AppException("Recipient phone number must be 10 digits.", HttpStatus.BAD_REQUEST);
+        }
+        
+        // save individual message to database.
+        this.messageService.saveMessage(user.getId(), sendMessageDTO.getRecipients(), sendMessageDTO);
+        recipientCount = sendMessageDTO.getRecipients().size();
+        if (user.getSmsBalance() < recipientCount) {
+            throw new AppException(
+                    "Insufficient SMS balance", HttpStatus.BAD_REQUEST);
+        } */
+        /*  UelloSend.sendCampaign(sendMessageDTO.getMessage(),
+                sendMessageDTO.getSenderId(),
+                sendMessageDTO.getRecipients().stream().map(c -> c.getPhoneNumber()).collect(Collectors.toList()));
+        */
+        //  }
 
         //  update user balance
-        user.setSmsBalance(user.getSmsBalance() - recipientCount);
+        /*  user.setSmsBalance(user.getSmsBalance() - recipientCount);
         user.setSmsSent(user.getSmsSent() + recipientCount);
         userRepository.save(user);
-        return new ResponseEntity<>("Message recieved for delivery.", HttpStatus.OK);
+        return new ResponseEntity<>("Message recieved for delivery.", HttpStatus.OK); */
+
     }
 
     /*

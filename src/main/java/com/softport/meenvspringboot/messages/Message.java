@@ -4,9 +4,16 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
 import javax.persistence.*;
-import java.util.Date;
 
-@Entity @Data @RequiredArgsConstructor
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+@Entity
+@Data
+@RequiredArgsConstructor
 public class Message {
 
     @Id
@@ -33,9 +40,12 @@ public class Message {
 
     private Date date = new Date();
 
-    public String getDate(){
-        return  this.date.toGMTString();
+    public String getDate() {
+        return this.date.toGMTString();
     }
 
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "message", fetch = FetchType.LAZY, orphanRemoval = true)
+    @JsonManagedReference
+    public List<MessageRecipient> recipients = new ArrayList<>();
 
 }

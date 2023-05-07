@@ -1,6 +1,6 @@
 package com.softport.meenvspringboot.services;
 
-import com.softport.meenvspringboot.dto.SendMessageDTO;
+import com.softport.meenvspringboot.dto.SendOneTimeMessageDTO;
 import com.softport.meenvspringboot.group.Contact;
 import com.softport.meenvspringboot.messages.Message;
 import com.softport.meenvspringboot.repositories.MessageRepository;
@@ -23,7 +23,7 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public void saveMessage(Long userId, Collection<Contact> recipients, SendMessageDTO sendMessageDTO) {
+    public void saveMessage(Long userId, Collection<Contact> recipients, SendOneTimeMessageDTO sendMessageDTO) {
         String messageId = String.format("%06d", new Random().nextInt(999999));
         List<Message> messageList = recipients.stream().map(recipient -> {
             Message message = new Message();
