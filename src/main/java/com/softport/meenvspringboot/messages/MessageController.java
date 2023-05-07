@@ -44,15 +44,26 @@ public class MessageController {
     public ResponseEntity<?> storeMessage(@RequestBody @Valid SendOneTimeMessageDTO data) {
 
         User user = AuthenticationService.getAuthenticatedUser();
-        long recipientCount = 0;
+        long recipientCount = data.getRecipients().size();
 
+        if (recipientCount > user.getSmsBalance()) {
+            throw new AppException("You have insufficient balance", HttpStatus.BAD_REQUEST);
+        }
         Message message = new Message();
         message.setMessage(data.getMessage());
         message.setSenderId(data.getSenderId());
         data.getRecipients().forEach(recipient -> recipient.setMessage(message));
         messageRepository.save(message);
         messageRecipientRepository.saveAll(data.getRecipients());
-        return new ResponseEntity<>(data, HttpStatus.OK);
+
+        // simulate SMS sending here.
+
+        //  update user balance
+        user.setSmsBalance(user.getSmsBalance() - recipientCount);
+        user.setSmsSent(user.getSmsSent() + recipientCount);
+        userRepository.save(user);
+        return new ResponseEntity<>("Message recieved for delivery.", HttpStatus.OK);
+
         /*  if (sendMessageDTO.isToGroup()) {
             Group group = groupRepository.findById(sendMessageDTO.getGroupId())
                     .orElseThrow(() -> new AppException("Group not found", HttpStatus.NOT_FOUND));
