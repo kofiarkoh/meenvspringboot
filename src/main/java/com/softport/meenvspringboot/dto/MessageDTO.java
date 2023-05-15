@@ -13,6 +13,7 @@ import lombok.Data;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class MessageDTO {
 
+    public long id;
     public String senderId;
 
     public String message;

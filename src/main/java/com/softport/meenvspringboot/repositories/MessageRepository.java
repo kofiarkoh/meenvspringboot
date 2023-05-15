@@ -13,7 +13,7 @@ public interface MessageRepository extends CrudRepository<Message, Long> {
     * get rows grouped by unique message id.
     * */
     //@Query(value = "select m from Message m where m.userId = ?1 group by m.messageId order by m.date desc ")
-    @Query(value = "select new com.softport.meenvspringboot.dto.MessageDTO(m.senderId, m.message, count(r), m.date) from Message m LEFT JOIN m.recipients r where m.userId = ?1 GROUP BY m.id ORDER BY m.id")
+    @Query(value = "select new com.softport.meenvspringboot.dto.MessageDTO(m.id, m.senderId, m.message, count(r), m.date) from Message m LEFT JOIN m.recipients r where m.userId = ?1 GROUP BY m.id ORDER BY m.id")
     List<?> getMessageByUserId(Long userId);
 
     @Query(value = "select m from Message m group by m.messageId")
