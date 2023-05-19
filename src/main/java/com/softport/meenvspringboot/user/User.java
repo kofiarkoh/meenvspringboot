@@ -63,7 +63,7 @@ public class User implements UserDetails {
     @Column
     @NotNull
 
-    @Pattern(regexp = "\\d{10}", message = "Phone number must be 10 digits long")
+    //@Pattern(regexp = "\\d{10}", message = "Phone number must be 10 digits long")
     private String phoneNumber;
 
     @Column

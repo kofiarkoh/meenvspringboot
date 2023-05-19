@@ -29,11 +29,11 @@ public class PasswordResetController {
     private final UserRepository userRepository;
 
     private final OTPService otpService;
-    private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
+    private final PasswordEncoder passwordEncoder;
 
-    @PostMapping("reset-password")
-    public ResponseEntity<?> resetPassword(@RequestBody PasswordResetDTO data) {
+    @PostMapping("find-account")
+    public ResponseEntity<?> findAccount(@RequestBody PasswordResetDTO data) {
 
         User user = userRepository.findByEmail(data.getEmail());
         if (user == null) {
@@ -41,7 +41,7 @@ public class PasswordResetController {
         }
         OTP otp = otpService.generate(
                 user.getPhoneNumber(),
-                this.passwordEncoder.encode(data.getNewPassword()),
+                "",
                 user);
 
         String message = String.format("Your password reset token is %s", otp.getCode());
@@ -63,16 +63,29 @@ public class PasswordResetController {
 
         User user = userRepository.findByPhoneNumber(otpData.getFirstIdentifier());
 
-        // update password
-        user.setPassword(otpData.getSecondIdentifier());
-        userRepository.save(user);
-
         otpService.deleteOTP(otpData);
 
         return new ResponseEntity<>(
-                "Password reset successful.",
+                "OTP verification successful.",
                 HttpStatus.OK);
 
+    }
+
+    @PostMapping("reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody PasswordResetDTO data) {
+
+        User user = userRepository.findByEmail(data.getEmail());
+        if (user == null) {
+            throw new AppException("No account found for the email provided", HttpStatus.NOT_FOUND);
+        }
+
+        // update password
+        user.setPassword(passwordEncoder.encode(data.getNewPassword()));
+        userRepository.save(user);
+
+        return new ResponseEntity<>(
+                "Password reset successfull.",
+                HttpStatus.OK);
     }
 
 }
